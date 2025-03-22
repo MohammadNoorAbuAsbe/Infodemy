@@ -53,6 +53,16 @@ fun DayScheduleList(
             ) {
                 items(daySchedules) { schedule ->
                     val isOverlapping = overlappingIndices.contains(daySchedules.indexOf(schedule))
+                    val overlappingTimes = if (isOverlapping) {
+                        daySchedules.filter { other ->
+                            other != schedule &&
+                                    schedule.startTime < other.endTime &&
+                                    schedule.endTime > other.startTime
+                        }.joinToString(separator = "\n") { other ->
+                            "Overlaps with: ${formatTimeFromDateTime(other.startTime)} - ${formatTimeFromDateTime(other.endTime)}"
+                        }
+                    } else null
+
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -66,8 +76,14 @@ fun DayScheduleList(
                         Column(modifier = Modifier.padding(12.dp)) {
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.End
+                                horizontalArrangement = Arrangement.SpaceBetween
                             ) {
+                                if (isOverlapping) {
+                                    Text(
+                                        text = "⚠ Overlap",
+                                        style = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.error)
+                                    )
+                                }
                                 Text(
                                     text = schedule.title,
                                     style = MaterialTheme.typography.titleSmall
@@ -87,6 +103,13 @@ fun DayScheduleList(
                                 Text(
                                     text = "Instructor: ${schedule.moreInfo}",
                                     style = MaterialTheme.typography.bodySmall
+                                )
+                            }
+                            if (isOverlapping && overlappingTimes != null) {
+                                Text(
+                                    text = overlappingTimes,
+                                    style = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.error),
+                                    modifier = Modifier.padding(top = 8.dp)
                                 )
                             }
                         }
