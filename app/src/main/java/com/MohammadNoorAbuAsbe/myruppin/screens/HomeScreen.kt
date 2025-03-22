@@ -117,9 +117,6 @@ fun HomeScreen(navController: NavController) {
     var remainingTime by remember { mutableStateOf("") }
     var countdownLabel by remember { mutableStateOf("Ends In") }
 
-    // Debounce state to prevent multiple rapid navigation actions
-    var isNavigating by remember { mutableStateOf(false) }
-
     // Update the timer using CountDownTimer
     LaunchedEffect(currentEvent, nextEvent) {
         val now = LocalTime.now()
@@ -153,13 +150,6 @@ fun HomeScreen(navController: NavController) {
         }
     }
 
-    // Ensure the screen initializes properly when it becomes visible
-    LaunchedEffect(navController.currentBackStackEntry) {
-        if (navController.currentBackStackEntry?.destination?.route == "home") {
-            isNavigating = false // Reset debounce state
-            viewModel.fetchEvents(token!!) // Re-fetch necessary data
-        }
-    }
 
     LaunchedEffect(logoutComplete) {
         if (logoutComplete) {
