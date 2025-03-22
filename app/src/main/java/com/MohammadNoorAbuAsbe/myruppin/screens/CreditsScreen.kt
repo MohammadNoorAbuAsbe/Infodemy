@@ -64,7 +64,7 @@ fun CreditsScreen(navController: NavController) {
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "Version 3.1.0",
+                text = "Version 3.2.0",
                 fontSize = 16.sp
             )
             Spacer(modifier = Modifier.height(8.dp))
