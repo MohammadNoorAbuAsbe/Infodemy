@@ -47,21 +47,33 @@ fun ScheduleScreen(navController: NavController) {
     // Local UI state
     var filterExpanded by remember { mutableStateOf(false) }
 
+    // Debounce state to prevent multiple rapid navigation actions
+    var isNavigating by remember { mutableStateOf(false) }
+
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text("My Schedule") },
                 navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
+                    IconButton(onClick = {
+                        if (!isNavigating) {
+                            isNavigating = true
+                            navController.popBackStack()
+                        }
+                    }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 },
                 actions = {
                     Button(
                         onClick = {
-                            viewModel.toggleScheduleView()
-                                  },
-                        modifier = Modifier.padding(end = 16.dp)) {
+                            if (!isNavigating) {
+                                isNavigating = true
+                                viewModel.toggleScheduleView()
+                            }
+                        },
+                        modifier = Modifier.padding(end = 16.dp)
+                    ) {
                         Text(if (showSchedule) "Show Calendar View" else "Show Schedule View")
                     }
                 }

@@ -117,6 +117,9 @@ fun HomeScreen(navController: NavController) {
     var remainingTime by remember { mutableStateOf("") }
     var countdownLabel by remember { mutableStateOf("Ends In") }
 
+    // Debounce state to prevent multiple rapid navigation actions
+    var isNavigating by remember { mutableStateOf(false) }
+
     // Update the timer using CountDownTimer
     LaunchedEffect(currentEvent, nextEvent) {
         val now = LocalTime.now()
@@ -147,6 +150,14 @@ fun HomeScreen(navController: NavController) {
             }
         } else {
             remainingTime = "No event time provided"
+        }
+    }
+
+    // Ensure the screen initializes properly when it becomes visible
+    LaunchedEffect(navController.currentBackStackEntry) {
+        if (navController.currentBackStackEntry?.destination?.route == "home") {
+            isNavigating = false // Reset debounce state
+            viewModel.fetchEvents(token!!) // Re-fetch necessary data
         }
     }
 
@@ -226,11 +237,14 @@ fun HomeScreen(navController: NavController) {
                     title = { Text("Home") },
                     navigationIcon = {
                         IconButton(onClick = {
-                            scope.launch {
-                                drawerState.apply {
-                                    if (isClosed) open() else close()
+
+
+                                scope.launch {
+                                    drawerState.apply {
+                                        if (isClosed) open() else close()
+                                    }
                                 }
-                            }
+
                         }) {
                             Icon(Icons.Default.Menu, contentDescription = "Menu")
                         }
@@ -255,23 +269,23 @@ fun HomeScreen(navController: NavController) {
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
 
-                    // Current Event Section
-                    CurrentEventCard(
-                        currentEvent = currentEvent ?: nextEvent,
-                        isLoading = isLoadingEvent,
-                        titleSize = titleSize,
-                        subtitleSize = subtitleSize,
-                        bodySize = bodySize,
-                        standardPadding = standardPadding,
-                        smallPadding = smallPadding,
-                        iconSize = iconSize,
-                        title = when {
-                            currentEvent != null -> "Current Event"
-                            else -> "Next Event"
-                        },
-                        remainingTime = remainingTime, // Pass remainingTime to CurrentEventCard
-                        countdownLabel = countdownLabel // Pass countdownLabel to CurrentEventCard
-                    )
+                // Current Event Section
+                CurrentEventCard(
+                    currentEvent = currentEvent ?: nextEvent,
+                    isLoading = isLoadingEvent,
+                    titleSize = titleSize,
+                    subtitleSize = subtitleSize,
+                    bodySize = bodySize,
+                    standardPadding = standardPadding,
+                    smallPadding = smallPadding,
+                    iconSize = iconSize,
+                    title = when {
+                        currentEvent != null -> "Current Event"
+                        else -> "Next Event"
+                    },
+                    remainingTime = remainingTime, // Pass remainingTime to CurrentEventCard
+                    countdownLabel = countdownLabel // Pass countdownLabel to CurrentEventCard
+                )
 
                 // Upcoming Events Section
                 Column(
