@@ -1,6 +1,12 @@
 package com.MohammadNoorAbuAsbe.myruppin.ui.components
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
@@ -8,6 +14,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -19,6 +26,17 @@ fun DayScheduleList(
     formatTimeFromDateTime: (String) -> String,
     modifier: Modifier = Modifier
 ) {
+    // Detect overlapping schedules
+    val overlappingIndices = remember(daySchedules) {
+        daySchedules.indices.filter { i ->
+            daySchedules.any { other ->
+                other != daySchedules[i] &&
+                        daySchedules[i].startTime < other.endTime &&
+                        daySchedules[i].endTime > other.startTime
+            }
+        }.toSet()
+    }
+
     Box(modifier = modifier.fillMaxWidth()) {
         if (daySchedules.isEmpty()) {
             Text(
@@ -34,13 +52,15 @@ fun DayScheduleList(
                     .padding(horizontal = 8.dp)
             ) {
                 items(daySchedules) { schedule ->
+                    val isOverlapping = overlappingIndices.contains(daySchedules.indexOf(schedule))
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 4.dp),
                         elevation = CardDefaults.cardElevation(4.dp),
                         colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surface
+                            containerColor = if (isOverlapping) MaterialTheme.colorScheme.errorContainer
+                            else MaterialTheme.colorScheme.surface
                         )
                     ) {
                         Column(modifier = Modifier.padding(12.dp)) {
