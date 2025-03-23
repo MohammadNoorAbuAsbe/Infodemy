@@ -76,7 +76,10 @@ fun DayScheduleList(
                         Column(modifier = Modifier.padding(12.dp)) {
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween
+                                horizontalArrangement = when {
+                                    isOverlapping -> Arrangement.SpaceBetween
+                                    else -> Arrangement.End
+                                }
                             ) {
                                 if (isOverlapping) {
                                     Text(
