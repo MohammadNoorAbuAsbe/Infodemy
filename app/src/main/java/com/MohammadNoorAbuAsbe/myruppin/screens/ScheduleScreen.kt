@@ -112,6 +112,10 @@ fun ScheduleScreen(navController: NavController) {
                     val semesters = scheduleData.map { it.semester }.distinct().reversed()
                     val combinedFilters = studyYears.flatMap { year ->
                         semesters.map { semester -> year to semester }
+                    }.filter { filter ->
+                        scheduleData.any { course ->
+                            course.studyYear == filter.first && course.semester == filter.second
+                        }
                     }
 
                     TextButton(onClick = { filterExpanded = !filterExpanded }) {
