@@ -127,3 +127,10 @@ data class AcademicProgram(
     val ptStatus: String?,
     val registrationStatus: String?
 )
+
+data class Message(
+    val id: String,
+    val title: String,
+    val text: String,
+    val date: String
+)

@@ -1,8 +1,11 @@
 package com.MohammadNoorAbuAsbe.myruppin
 
+import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -13,41 +16,32 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.MohammadNoorAbuAsbe.myruppin.screens.GradesScreen
-import com.MohammadNoorAbuAsbe.myruppin.screens.HomeScreen
-import com.MohammadNoorAbuAsbe.myruppin.screens.LoginScreen
-import com.MohammadNoorAbuAsbe.myruppin.ui.theme.MyRuppinTheme
-import android.Manifest
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
-import com.MohammadNoorAbuAsbe.myruppin.screens.ScheduleScreen
-import com.MohammadNoorAbuAsbe.myruppin.workers.GradeCheckWorker
-import java.util.concurrent.TimeUnit
-import android.app.Activity
-import android.content.Intent
-import android.util.Log
-import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.lifecycle.lifecycleScope
 import com.MohammadNoorAbuAsbe.myruppin.screens.CreditsScreen
-import com.google.android.gms.tasks.Task
-import com.google.android.play.core.appupdate.AppUpdateManagerFactory
-import com.google.android.play.core.appupdate.AppUpdateInfo
+import com.MohammadNoorAbuAsbe.myruppin.screens.GradesScreen
+import com.MohammadNoorAbuAsbe.myruppin.screens.HomeScreen
+import com.MohammadNoorAbuAsbe.myruppin.screens.LoginScreen
+import com.MohammadNoorAbuAsbe.myruppin.screens.MessagesScreen
+import com.MohammadNoorAbuAsbe.myruppin.screens.ScheduleScreen
+import com.MohammadNoorAbuAsbe.myruppin.ui.theme.MyRuppinTheme
+import com.MohammadNoorAbuAsbe.myruppin.workers.GradeCheckWorker
 import com.google.android.play.core.appupdate.AppUpdateManager
-import com.google.android.play.core.appupdate.AppUpdateOptions
+import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.install.InstallStateUpdatedListener
 import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.install.model.InstallStatus
 import com.google.android.play.core.install.model.UpdateAvailability
 import com.google.android.play.core.ktx.isFlexibleUpdateAllowed
 import com.google.android.play.core.ktx.isImmediateUpdateAllowed
-import com.google.android.play.core.ktx.startUpdateFlowForResult
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.util.concurrent.TimeUnit
 import kotlin.time.Duration.Companion.seconds
 
 class MainActivity : ComponentActivity() {
@@ -183,7 +177,10 @@ fun AppNavigation() {
             ScheduleScreen(navController)
         }
         composable("credits") {
-            CreditsScreen(navController = navController)
+            CreditsScreen(navController)
+        }
+        composable("messages") {
+            MessagesScreen(navController)
         }
     }
 }
