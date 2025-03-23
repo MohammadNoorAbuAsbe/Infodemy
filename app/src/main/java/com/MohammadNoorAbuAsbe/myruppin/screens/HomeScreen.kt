@@ -53,12 +53,15 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpOffset
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.MohammadNoorAbuAsbe.myruppin.data.TokenManager
+import com.MohammadNoorAbuAsbe.myruppin.data.models.UpcomingEvent
 import com.MohammadNoorAbuAsbe.myruppin.data.repository.HomeRepository
 import com.MohammadNoorAbuAsbe.myruppin.ui.components.CurrentEventCard
 import com.MohammadNoorAbuAsbe.myruppin.ui.components.UpcomingEventCard
@@ -330,7 +333,6 @@ fun HomeScreen(navController: NavController) {
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
 
-                // Current Event Section
                 CurrentEventCard(
                     currentEvent = currentEvent ?: nextEvent,
                     isLoading = isLoadingEvent,
@@ -344,80 +346,108 @@ fun HomeScreen(navController: NavController) {
                         currentEvent != null -> "Current Event"
                         else -> "Next Event"
                     },
-                    remainingTime = remainingTime, // Pass remainingTime to CurrentEventCard
-                    countdownLabel = countdownLabel // Pass countdownLabel to CurrentEventCard
+                    remainingTime = remainingTime,
+                    countdownLabel = countdownLabel
                 )
 
-                // Upcoming Events Section
-                Column(
+                UpcomingEventsSection(
+                    upcomingEvents = upcomingEvents,
+                    isLoading = isLoadingUpcoming,
+                    error = error,
+                    standardPadding = standardPadding,
+                    smallPadding = smallPadding,
+                    titleSize = titleSize,
+                    iconSize = iconSize,
+                    bodySize = bodySize,
+                    subtitleSize = subtitleSize,
+                    tinyPadding = tinyPadding,
+                    warningIconSize = warningIconSize
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun UpcomingEventsSection(
+    upcomingEvents: List<UpcomingEvent>,
+    isLoading: Boolean,
+    error: String?,
+    standardPadding: Dp,
+    smallPadding: Dp,
+    titleSize: TextUnit,
+    iconSize: Dp,
+    bodySize: TextUnit,
+    subtitleSize: TextUnit,
+    tinyPadding: Dp,
+    warningIconSize: Dp
+
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(standardPadding),
+        verticalArrangement = Arrangement.spacedBy(smallPadding),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = "Upcoming Major Events",
+            fontSize = titleSize,
+            color = MaterialTheme.colorScheme.primary,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(bottom = smallPadding)
+        )
+
+        if (isLoading) {
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(
+                    modifier =  Modifier.size(iconSize),
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+        } else if (upcomingEvents.isEmpty()) {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                elevation = CardDefaults.cardElevation(4.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+            ) {
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(standardPadding),
-                    verticalArrangement = Arrangement.spacedBy(smallPadding),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "Upcoming Major Events",
-                        fontSize = titleSize,
-                        color = MaterialTheme.colorScheme.primary,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(bottom = smallPadding)
+                        text = "No upcoming events",
+                        fontSize = bodySize,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
-
-                    if (isLoadingUpcoming) {
-                        Box(
-                            modifier = Modifier.fillMaxWidth(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            CircularProgressIndicator(
-                                modifier =  Modifier.size(iconSize),
-                                color = MaterialTheme.colorScheme.primary
-                            )
-                        }
-                    } else if (upcomingEvents.isEmpty()) {
-                        Card(
-                            modifier = Modifier.fillMaxWidth(),
-                            elevation = CardDefaults.cardElevation(4.dp),
-                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(standardPadding),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text(
-                                    text = "No upcoming events",
-                                    fontSize = bodySize,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-                        }
-                    } else {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                        ) {
-                            LazyColumn(
-                                modifier = Modifier.fillMaxWidth(),
-                                verticalArrangement = Arrangement.spacedBy(smallPadding)
-                            ) {
-                                itemsIndexed(upcomingEvents) { _, event ->
-                                    UpcomingEventCard(
-                                        event = event,
-                                        subtitleSize = subtitleSize,
-                                        bodySize = bodySize,
-                                        smallPadding = smallPadding,
-                                        tinyPadding = tinyPadding,
-                                        warningIconSize = warningIconSize
-                                    )
-                                }
-                            }
-                        }
+                }
+            }
+        } else {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
+                LazyColumn(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(smallPadding)
+                ) {
+                    itemsIndexed(upcomingEvents) { _, event ->
+                        UpcomingEventCard(
+                            event = event,
+                            subtitleSize = subtitleSize,
+                            bodySize = bodySize,
+                            smallPadding = smallPadding,
+                            tinyPadding = tinyPadding,
+                            warningIconSize = warningIconSize
+                        )
                     }
                 }
             }
         }
     }
 }
-
