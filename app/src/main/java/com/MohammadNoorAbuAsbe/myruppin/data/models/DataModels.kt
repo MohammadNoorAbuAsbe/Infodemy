@@ -115,3 +115,15 @@ data class HomeData(
     val currentEvent: EventInfo?,
     val upcomingEvents: List<UpcomingEvent>
 )
+
+data class AcademicData(
+    val msls: List<AcademicProgram>,
+    val snl: String
+)
+
+data class AcademicProgram(
+    val msl: String,
+    val pdgSnl: String,
+    val ptStatus: String?,
+    val registrationStatus: String?
+)

@@ -52,6 +52,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -114,6 +115,9 @@ fun HomeScreen(navController: NavController) {
     val error by viewModel.error.collectAsState()
     val logoutComplete by viewModel.logoutComplete.collectAsState()
     val userName by viewModel.userName.collectAsState()
+
+    // Collect academic data
+    val academicData by viewModel.academicData.collectAsState()
 
     // Drawer state
     val scope = rememberCoroutineScope()
@@ -272,15 +276,40 @@ fun HomeScreen(navController: NavController) {
                                 offset = DpOffset(x = 0.dp, y = 8.dp)
                             ) {
                                 DropdownMenuItem(
-                                    text = { Text("User Page", color = MaterialTheme.colorScheme.primary) },
-                                    onClick = {
-                                        isDropdownExpanded = false
-                                        navController.navigate("userPage")
+                                    text = {
+                                        Text(
+                                            "Academic Year: ${academicData?.snl ?: "Loading..."}",
+                                            color = MaterialTheme.colorScheme.onSurface
+                                        )
                                     },
-                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                                    onClick = {},
+                                    enabled = false
                                 )
                                 DropdownMenuItem(
-                                    text = { Text("Logout", color = MaterialTheme.colorScheme.primary) },
+                                    text = {
+                                        Text(
+                                            academicData?.msls?.firstOrNull()?.msl ?: "Loading...",
+                                            color = MaterialTheme.colorScheme.onSurface,
+                                            textAlign = TextAlign.Right
+                                        )
+
+                                    },
+                                    onClick = {},
+                                    enabled = false
+                                )
+                                DropdownMenuItem(
+                                    text = {
+                                        Text(
+                                            "Pedagogical Year: ${academicData?.msls?.firstOrNull()?.pdgSnl ?: "Loading..."}",
+                                            color = MaterialTheme.colorScheme.onSurface
+                                        )
+                                    },
+                                    onClick = {},
+                                    enabled = false
+                                )
+                                HorizontalDivider()
+                                DropdownMenuItem(
+                                    text = { Text("Logout", color = MaterialTheme.colorScheme.onSurface) },
                                     onClick = {
                                         isDropdownExpanded = false
                                         viewModel.logout()

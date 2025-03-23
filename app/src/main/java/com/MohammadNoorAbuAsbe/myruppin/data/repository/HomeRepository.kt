@@ -1,5 +1,7 @@
 package com.MohammadNoorAbuAsbe.myruppin.data.repository
 
+import com.MohammadNoorAbuAsbe.myruppin.data.models.AcademicData
+import com.MohammadNoorAbuAsbe.myruppin.data.models.AcademicProgram
 import com.MohammadNoorAbuAsbe.myruppin.data.models.EventInfo
 import com.MohammadNoorAbuAsbe.myruppin.data.models.UpcomingEvent
 import kotlinx.coroutines.Dispatchers
@@ -192,5 +194,52 @@ class HomeRepository(private val client: OkHttpClient) {
             return "$firstName $lastName".trim().takeIf { it.isNotEmpty() }
         }
         return null
+    }
+
+    suspend fun fetchAcademicData(token: String): AcademicData? {
+        return withContext(Dispatchers.IO) {
+            val request = Request.Builder()
+                .url("https://ruppinet.ruppin.ac.il/Portals/api/Account/StudentMsls")
+                .post("{}".toRequestBody("application/json".toMediaType()))
+                .header("Authorization", "Bearer $token")
+                .build()
+
+            try {
+                val response = client.newCall(request).execute()
+                if (!response.isSuccessful) {
+                    throw IOException("Unexpected response code: ${response.code}")
+                }
+
+                val responseBody = response.body?.string() ?: throw IOException("Empty response body")
+                parseAcademicData(responseBody)
+            } catch (e: Exception) {
+                null
+            }
+        }
+    }
+
+    private fun parseAcademicData(responseBody: String): AcademicData {
+        val jsonResponse = JSONObject(responseBody)
+        val mslsArray = jsonResponse.optJSONArray("msls")
+        val msls = mutableListOf<AcademicProgram>()
+
+        for (i in 0 until (mslsArray?.length() ?: 0)) {
+            val mslObject = mslsArray?.getJSONObject(i)
+            mslObject?.let {
+                msls.add(
+                    AcademicProgram(
+                        msl = it.optString("msl", "Unknown Program"),
+                        pdgSnl = it.optString("pdgSnl", "Unknown Year"),
+                        ptStatus = it.optString("ptStatus"),
+                        registrationStatus = it.optString("registrationStatus")
+                    )
+                )
+            }
+        }
+
+        return AcademicData(
+            msls = msls,
+            snl = jsonResponse.optString("snl", "Unknown Academic Year")
+        )
     }
 }

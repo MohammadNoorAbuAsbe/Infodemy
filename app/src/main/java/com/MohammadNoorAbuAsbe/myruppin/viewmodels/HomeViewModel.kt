@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.MohammadNoorAbuAsbe.myruppin.data.TokenManager
 import com.MohammadNoorAbuAsbe.myruppin.data.models.EventInfo
 import com.MohammadNoorAbuAsbe.myruppin.data.models.UpcomingEvent
+import com.MohammadNoorAbuAsbe.myruppin.data.models.AcademicData
 import com.MohammadNoorAbuAsbe.myruppin.data.repository.HomeRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -46,6 +47,9 @@ class HomeViewModel(
     private val _userName = MutableStateFlow<String?>(null)
     val userName: StateFlow<String?> = _userName.asStateFlow()
 
+    // Academic Data State
+    private val _academicData = MutableStateFlow<AcademicData?>(null)
+    val academicData: StateFlow<AcademicData?> = _academicData.asStateFlow()
 
     init {
         loadHomeData()
@@ -57,23 +61,21 @@ class HomeViewModel(
             _isLoadingUpcoming.value = true
             _error.value = null
 
-
-                val currentEvents = repository.fetchCurrentEvents(token)
-                if (currentEvents != null) {
-                    _currentEvent.value = currentEvents.first.firstOrNull()
-                    _nextEvent.value = currentEvents.second.firstOrNull()
-                } else {
-                    _error.value = "Failed to fetch current events"
-                }
-
-                val upcomingEvents = repository.fetchUpcomingEvents(token)
-                _upcomingEvents.value = upcomingEvents
+            val currentEvents = repository.fetchCurrentEvents(token)
+            if (currentEvents != null) {
+                _currentEvent.value = currentEvents.first.firstOrNull()
+                _nextEvent.value = currentEvents.second.firstOrNull()
+            } else {
+                _error.value = "Failed to fetch current events"
             }
 
-            _isLoadingEvent.value = false
-            _isLoadingUpcoming.value = false
+            val upcomingEvents = repository.fetchUpcomingEvents(token)
+            _upcomingEvents.value = upcomingEvents
         }
 
+        _isLoadingEvent.value = false
+        _isLoadingUpcoming.value = false
+    }
 
     /**
      * Loads all home screen data
@@ -85,6 +87,7 @@ class HomeViewModel(
                     loadCurrentEvent(currentToken)
                     loadUpcomingEvents(currentToken)
                     loadUserName(currentToken)
+                    loadAcademicData(currentToken) // Load academic data
                 }
             }
         }
@@ -138,6 +141,18 @@ class HomeViewModel(
                 _error.value = "Error loading upcoming events: ${e.message}"
             } finally {
                 _isLoadingUpcoming.value = false
+            }
+        }
+    }
+
+    private fun loadAcademicData(token: String) {
+        viewModelScope.launch {
+            try {
+                _academicData.value = repository.fetchAcademicData(token)
+            } catch (e: IOException) {
+                _error.value = "Network error: ${e.message}"
+            } catch (e: Exception) {
+                _error.value = "Error loading academic data: ${e.message}"
             }
         }
     }
