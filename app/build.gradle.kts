@@ -12,8 +12,8 @@ android {
         applicationId = "com.MohammadNoorAbuAsbe.myruppin"
         minSdk = 26
         targetSdk = 35
-        versionCode = 14
-        versionName = "3.2"
+        versionCode = 15
+        versionName = "3.3"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
