@@ -1,6 +1,6 @@
-# MyRuppin
+# Infodemy
 
-MyRuppin is an Android application designed to help students at Ruppin Academic Center manage their academic schedules, grades, and upcoming events. The app provides a user-friendly interface for viewing course schedules, tracking grades, and staying updated with important events.
+Infodemy is an Android application designed to help students at Ruppin Academic Center manage their academic schedules, grades, and upcoming events. The app provides a user-friendly interface for viewing course schedules, tracking grades, and staying updated with important events.
 
 ## Features
 
@@ -15,14 +15,14 @@ MyRuppin is an Android application designed to help students at Ruppin Academic 
 
 1. **Clone the repository**:
     ```sh
-    git clone https://github.com/yourusername/MyRuppin.git
-    cd MyRuppin
+    git clone https://github.com/yourusername/Infodemy.git
+    cd Infodemy
     ```
 
 2. **Open the project in Android Studio**:
     - Open Android Studio.
     - Select `Open an existing project`.
-    - Navigate to the cloned repository and select the `MyRuppin` folder.
+    - Navigate to the cloned repository and select the `Infodemy` folder.
 
 3. **Build the project**:
     - Ensure you have the necessary SDKs installed.
@@ -89,4 +89,4 @@ For any questions or feedback, please contact Mohammad Noor Abu Asbe at [mn.abua
 
 ---
 
-Thank you for using MyRuppin! I hope it helps you manage your academic life more efficiently.
+Thank you for using Infodemy! I hope it helps you manage your academic life more efficiently.
