@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "com.MohammadNoorAbuAsbe.myruppin"
+    namespace = "com.MohammadNoorAbuAsbe.Infodemy"
     compileSdk = 35
 
     defaultConfig {
