@@ -62,6 +62,7 @@ fun ScheduleScreen(navController: NavController) {
     val currentMonth by viewModel.currentMonth.collectAsState()
     val selectedDay by viewModel.selectedDay.collectAsState()
     val monthSchedule by viewModel.monthSchedule.collectAsState()
+    val error by viewModel.error.collectAsState()
 
     // Local UI state
     var filterExpanded by remember { mutableStateOf(false) }
@@ -138,7 +139,22 @@ fun ScheduleScreen(navController: NavController) {
                 }
 
                 // Schedule List
-                if (isLoading) {
+                if (error != null) {
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Text(
+                            text = "Error: $error",
+                            color = MaterialTheme.colorScheme.error,
+                            modifier = Modifier.padding(16.dp)
+                        )
+                        Button(onClick = { viewModel.refreshData() }) {
+                            Text("Retry")
+                        }
+                    }
+                } else if (isLoading) {
                     CircularProgressIndicator(
                         modifier = Modifier.align(Alignment.CenterHorizontally)
                     )
@@ -163,7 +179,22 @@ fun ScheduleScreen(navController: NavController) {
                 )
 
                 // Display events for selected day
-                if (isLoading) {
+                if (error != null) {
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Text(
+                            text = "Error: $error",
+                            color = MaterialTheme.colorScheme.error,
+                            modifier = Modifier.padding(16.dp)
+                        )
+                        Button(onClick = { viewModel.refreshData() }) {
+                            Text("Retry")
+                        }
+                    }
+                } else if (isLoading) {
                     CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
                 } else {
                     selectedDay?.let { date ->

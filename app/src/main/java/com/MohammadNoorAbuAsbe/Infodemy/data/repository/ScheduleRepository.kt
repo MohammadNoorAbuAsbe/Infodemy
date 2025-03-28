@@ -1,12 +1,17 @@
 package com.MohammadNoorAbuAsbe.Infodemy.data.repository
 
-import com.MohammadNoorAbuAsbe.Infodemy.data.models.ScheduleCourse
 import com.MohammadNoorAbuAsbe.Infodemy.data.models.DaySchedule
+import com.MohammadNoorAbuAsbe.Infodemy.data.models.ScheduleCourse
 import com.MohammadNoorAbuAsbe.Infodemy.data.models.ScheduleParams
-import kotlinx.coroutines.*
-import okhttp3.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import okhttp3.Call
+import okhttp3.Callback
 import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.OkHttpClient
+import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
+import okhttp3.Response
 import org.json.JSONObject
 import java.io.IOException
 import java.time.LocalDate
@@ -17,36 +22,42 @@ import kotlin.coroutines.suspendCoroutine
 class ScheduleRepository(private val client: OkHttpClient) {
 
     suspend fun fetchScheduleParams(token: String): ScheduleParams = withContext(Dispatchers.IO) {
-        suspendCoroutine { continuation ->
-            val request = Request.Builder()
-                .url("https://ruppinet.ruppin.ac.il/Portals/api/StudentSchedule/Data")
-                .post("""{"urlParameters":{}}""".toRequestBody("application/json".toMediaType()))
-                .header("Authorization", "Bearer $token")
-                .build()
+        try {
+            suspendCoroutine { continuation ->
+                val request = Request.Builder()
+                    .url("https://ruppinet.ruppin.ac.il/Portals/api/StudentSchedule/Data")
+                    .post("""{"urlParameters":{}}""".toRequestBody("application/json".toMediaType()))
+                    .header("Authorization", "Bearer $token")
+                    .build()
 
-            client.newCall(request).enqueue(object : Callback {
-                override fun onFailure(call: Call, e: IOException) {
-                    continuation.resumeWithException(e)
-                }
-
-                override fun onResponse(call: Call, response: Response) {
-                    try {
-                        if (!response.isSuccessful) throw IOException("Unexpected code $response")
-                        val responseString = response.body!!.string()
-                        val jsonResponse = JSONObject(responseString)
-                        val scheduleParamsJson = jsonResponse.getJSONObject("_ScheduleParams")
-                        val params = ScheduleParams(
-                            hash = scheduleParamsJson.getString("__hash"),
-                            pt = scheduleParamsJson.getInt("pt"),
-                            ptMsl = scheduleParamsJson.getInt("ptMsl"),
-                            shl = scheduleParamsJson.getInt("shl")
-                        )
-                        continuation.resume(params)
-                    } catch (e: Exception) {
-                        continuation.resumeWithException(e)
+                client.newCall(request).enqueue(object : Callback {
+                    override fun onFailure(call: Call, e: IOException) {
+                        val errorMessage = "Failed to fetch schedule parameters: Unable to resolve host or network issue: ${e.message}"
+                        continuation.resumeWithException(IOException(errorMessage))
                     }
-                }
-            })
+
+                    override fun onResponse(call: Call, response: Response) {
+                        try {
+                            if (!response.isSuccessful) throw IOException("Unexpected code $response")
+                            val responseString = response.body!!.string()
+                            val jsonResponse = JSONObject(responseString)
+                            val scheduleParamsJson = jsonResponse.getJSONObject("_ScheduleParams")
+                            val params = ScheduleParams(
+                                hash = scheduleParamsJson.getString("__hash"),
+                                pt = scheduleParamsJson.getInt("pt"),
+                                ptMsl = scheduleParamsJson.getInt("ptMsl"),
+                                shl = scheduleParamsJson.getInt("shl")
+                            )
+                            continuation.resume(params)
+                        } catch (e: Exception) {
+                            val errorMessage = "Failed to parse schedule parameters: ${e.message}"
+                            continuation.resumeWithException(IOException(errorMessage))
+                        }
+                    }
+                })
+            }
+        } catch (e: Exception) {
+            throw IOException("Failed to fetch schedule parameters: ${e.message}")
         }
     }
 
@@ -68,7 +79,7 @@ class ScheduleRepository(private val client: OkHttpClient) {
 
             client.newCall(request).enqueue(object : Callback {
                 override fun onFailure(call: Call, e: IOException) {
-                    continuation.resumeWithException(e)
+                    continuation.resumeWithException(IOException("Failed to fetch schedule: ${e.message}"))
                 }
 
                 override fun onResponse(call: Call, response: Response) {
@@ -79,7 +90,7 @@ class ScheduleRepository(private val client: OkHttpClient) {
                         val courses = parseScheduleData(jsonResponse)
                         continuation.resume(courses)
                     } catch (e: Exception) {
-                        continuation.resumeWithException(e)
+                        continuation.resumeWithException(IOException("Failed to parse schedule: ${e.message}"))
                     }
                 }
             })
@@ -105,7 +116,7 @@ class ScheduleRepository(private val client: OkHttpClient) {
                 .header("Authorization", "Bearer $token")
                 .build()).enqueue(object : Callback {
                 override fun onFailure(call: Call, e: IOException) {
-                    continuation.resumeWithException(e)
+                    continuation.resumeWithException(IOException("Failed to fetch week schedule: ${e.message}"))
                 }
 
                 override fun onResponse(call: Call, response: Response) {
@@ -116,7 +127,7 @@ class ScheduleRepository(private val client: OkHttpClient) {
                         val weekSchedule = parseDaySchedule(jsonResponse)
                         continuation.resume(weekSchedule)
                     } catch (e: Exception) {
-                        continuation.resumeWithException(e)
+                        continuation.resumeWithException(IOException("Failed to parse week schedule: ${e.message}"))
                     }
                 }
             })

@@ -3,25 +3,32 @@ package com.MohammadNoorAbuAsbe.Infodemy.viewmodels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.MohammadNoorAbuAsbe.Infodemy.data.TokenManager
-import com.MohammadNoorAbuAsbe.Infodemy.data.models.ScheduleCourse
 import com.MohammadNoorAbuAsbe.Infodemy.data.models.DaySchedule
+import com.MohammadNoorAbuAsbe.Infodemy.data.models.ScheduleCourse
 import com.MohammadNoorAbuAsbe.Infodemy.data.models.ScheduleParams
 import com.MohammadNoorAbuAsbe.Infodemy.data.repository.ScheduleRepository
+import com.MohammadNoorAbuAsbe.Infodemy.utils.DateUtils.formatTimeFromDateTime
+import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.async
+import java.io.IOException
 import java.time.LocalDate
 import java.time.YearMonth
-import com.MohammadNoorAbuAsbe.Infodemy.utils.DateUtils.formatTimeFromDateTime
-import kotlinx.coroutines.awaitAll
 
 class ScheduleViewModel(
     private val repository: ScheduleRepository,
     private val tokenManager: TokenManager
 ) : ViewModel() {
+
+    // Add a CoroutineExceptionHandler
+    private val exceptionHandler = CoroutineExceptionHandler { _, exception ->
+        _error.value = "Unexpected error: ${exception.message}"
+    }
 
     // UI State
     private val _isLoading = MutableStateFlow(true)
@@ -29,6 +36,9 @@ class ScheduleViewModel(
 
     private val _showSchedule = MutableStateFlow(false)
     val showSchedule: StateFlow<Boolean> = _showSchedule.asStateFlow()
+
+    private val _error = MutableStateFlow<String?>(null)
+    val error: StateFlow<String?> = _error
 
     // Schedule Data
     private val _scheduleData = MutableStateFlow<List<ScheduleCourse>>(emptyList())
@@ -57,21 +67,25 @@ class ScheduleViewModel(
     private val _isFetchingMonthData = MutableStateFlow(false)
 
     init {
-        viewModelScope.launch {
+        loadScheduleData()
+    }
+
+    private fun loadScheduleData() {
+        viewModelScope.launch(exceptionHandler) { // Use the exception handler
             tokenManager.token.collectLatest { token ->
                 token?.let { currentToken ->
                     try {
                         _isLoading.value = true
+                        _error.value = null // Reset error before starting
+
                         val paramsDeferred = async { repository.fetchScheduleParams(currentToken) }
                         val params = paramsDeferred.await()
                         _scheduleParams.value = params
 
-                        // Fetch schedule data concurrently
                         val coursesDeferred = async { repository.fetchSchedule(currentToken, params) }
                         val courses = coursesDeferred.await()
                         _scheduleData.value = courses
 
-                        // Set initial filter if available
                         if (_selectedFilter.value == null && courses.isNotEmpty()) {
                             val studyYears = courses.map { it.studyYear }.distinct()
                             val semesters = courses.map { it.semester }.distinct().reversed()
@@ -80,13 +94,17 @@ class ScheduleViewModel(
                             }
                         }
 
-                        // Fetch month schedule
                         fetchMonthSchedule(currentToken, _currentMonth.value, params)
+                    } catch (e: IOException) {
+                        _error.value = "Network error: ${e.message}. Please check your internet connection."
                     } catch (e: Exception) {
-                        // Handle error
+                        _error.value = "Error loading schedule: ${e.message}"
                     } finally {
                         _isLoading.value = false
                     }
+                } ?: run {
+                    _error.value = "Authentication token not found"
+                    _isLoading.value = false
                 }
             }
         }
@@ -209,5 +227,9 @@ class ScheduleViewModel(
         }
 
         _monthSchedule.value = relevantSchedules
+    }
+
+    fun refreshData() {
+        loadScheduleData()
     }
 }
