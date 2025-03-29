@@ -325,7 +325,7 @@ fun HomeScreen(navController: NavController) {
                                 )
                                 HorizontalDivider()
                                 DropdownMenuItem(
-                                    text = { Text("Logout", color = MaterialTheme.colorScheme.onSurface) },
+                                    text = { Text("Logout", color = MaterialTheme.colorScheme.primary) },
                                     onClick = {
                                         isDropdownExpanded = false
                                         viewModel.logout()
