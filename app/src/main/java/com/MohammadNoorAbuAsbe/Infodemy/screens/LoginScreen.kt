@@ -163,7 +163,7 @@ fun LoginScreen(navController: NavController, modifier: Modifier = Modifier) {
                 if (isLoading) {
                     CircularProgressIndicator(
                         modifier = Modifier.size(24.dp),
-                        color = MaterialTheme.colorScheme.onPrimary
+                        color = MaterialTheme.colorScheme.primary
                     )
                 } else {
                     Text("Login")
