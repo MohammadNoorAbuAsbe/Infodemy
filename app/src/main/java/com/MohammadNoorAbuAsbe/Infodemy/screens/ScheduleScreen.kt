@@ -3,23 +3,36 @@ package com.MohammadNoorAbuAsbe.Infodemy.screens
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Event
+import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material.icons.outlined.Event
+import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material3.Button
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -28,11 +41,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.MohammadNoorAbuAsbe.Infodemy.data.TokenManager
+import com.MohammadNoorAbuAsbe.Infodemy.data.models.ScheduleCourse
 import com.MohammadNoorAbuAsbe.Infodemy.data.repository.ScheduleRepository
 import com.MohammadNoorAbuAsbe.Infodemy.ui.components.CalendarGridView
 import com.MohammadNoorAbuAsbe.Infodemy.ui.components.CourseList
@@ -61,19 +78,31 @@ fun ScheduleScreen(navController: NavController) {
     val selectedFilter by viewModel.selectedFilter.collectAsState()
     val currentMonth by viewModel.currentMonth.collectAsState()
     val selectedDay by viewModel.selectedDay.collectAsState()
-    val monthSchedule by viewModel.monthSchedule.collectAsState()
-    val error by viewModel.error.collectAsState()
 
-    // Local UI state
-    var filterExpanded by remember { mutableStateOf(false) }
+    val error by viewModel.error.collectAsState()
 
     // Debounce state to prevent multiple rapid navigation actions
     var isNavigating by remember { mutableStateOf(false) }
 
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
+
     Scaffold(
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
-            TopAppBar(
-                title = { Text("My Schedule") },
+            CenterAlignedTopAppBar(
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    titleContentColor = MaterialTheme.colorScheme.primary,
+                ),
+                title = {
+                    Text(
+                        "My Schedule",
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        fontWeight = FontWeight.Bold
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = {
                         if (!isNavigating) {
@@ -81,61 +110,75 @@ fun ScheduleScreen(navController: NavController) {
                             navController.popBackStack()
                         }
                     }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back"
+                        )
                     }
                 },
-                actions = {
-                    Button(
-                        onClick = {
-                            viewModel.toggleScheduleView()
-                        },
-                        modifier = Modifier.padding(end = 16.dp)) {
-                        Text(if (showSchedule) "Show Calendar View" else "Show Schedule View")
-                    }
-                }
+                scrollBehavior = scrollBehavior,
             )
-        }
+        },
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
     ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Top
+                .padding(innerPadding)
         ) {
-            if (showSchedule) {
+            // Tab navigation
+            PrimaryTabRow(
+                selectedTabIndex = if (showSchedule) 0 else 1,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Tab(
+                    selected = showSchedule,
+                    onClick = { viewModel.setShowSchedule(true) },
+                    text = {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = if (showSchedule) Icons.Filled.Schedule else Icons.Outlined.Schedule,
+                                contentDescription = null,
+                                modifier = Modifier.size(18.dp)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("Schedule")
+                        }
+                    }
+                )
+                Tab(
+                    selected = !showSchedule,
+                    onClick = { viewModel.setShowSchedule(false) },
+                    text = {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = if (!showSchedule) Icons.Filled.Event else Icons.Outlined.Event,
+                                contentDescription = null,
+                                modifier = Modifier.size(18.dp)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("Calendar")
+                        }
+                    }
+                )
+            }
+
+            // Loading indicator at top
+            if (isLoading && scheduleData.isNotEmpty()) {
+                LinearProgressIndicator(
+                    modifier = Modifier.fillMaxWidth(),
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+
+if (showSchedule) {
                 // Schedule View
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
                 ) {
-                    val studyYears = scheduleData.map { it.studyYear }.distinct()
-                    val semesters = scheduleData.map { it.semester }.distinct().reversed()
-                    val combinedFilters = studyYears.flatMap { year ->
-                        semesters.map { semester -> year to semester }
-                    }.filter { filter ->
-                        scheduleData.any { course ->
-                            course.studyYear == filter.first && course.semester == filter.second
-                        }
-                    }
-
-                    TextButton(onClick = { filterExpanded = !filterExpanded }) {
-                        Text("Filter: ${selectedFilter?.let { "${it.first} - ${it.second}" } ?: "None"}")
-                    }
-                    DropdownMenu(
-                        expanded = filterExpanded,
-                        onDismissRequest = { filterExpanded = false }
-                    ) {
-                        combinedFilters.forEach { (year, semester) ->
-                            DropdownMenuItem(
-                                onClick = {
-                                    viewModel.setFilter(year to semester)
-                                    filterExpanded = false
-                                },
-                                text = { Text(text = "$year - $semester") }
-                            )
-                        }
-                    }
+                    ScheduleFilters(viewModel, scheduleData, selectedFilter)
                 }
 
                 // Schedule List
@@ -146,7 +189,7 @@ fun ScheduleScreen(navController: NavController) {
                         verticalArrangement = Arrangement.Center
                     ) {
                         Text(
-                            text = "Error: $error",
+                            text = "We're having trouble connecting. Please check your internet connection and try again.",
                             color = MaterialTheme.colorScheme.error,
                             modifier = Modifier.padding(16.dp)
                         )
@@ -186,7 +229,7 @@ fun ScheduleScreen(navController: NavController) {
                         verticalArrangement = Arrangement.Center
                     ) {
                         Text(
-                            text = "Error: $error",
+                            text = "We're having trouble connecting. Please check your internet connection and try again.",
                             color = MaterialTheme.colorScheme.error,
                             modifier = Modifier.padding(16.dp)
                         )
@@ -225,6 +268,38 @@ fun ScheduleScreen(navController: NavController) {
                     }
                 }
             }
+        }
+    }
+}
+
+
+@Composable
+private fun ScheduleFilters(
+    viewModel: ScheduleViewModel,
+    scheduleData: List<ScheduleCourse>,
+    selectedFilter: Pair<String, String>?
+) {
+    val studyYears = scheduleData.map { it.studyYear }.distinct()
+    val semesters = scheduleData.map { it.semester }.distinct().reversed()
+    val combinedFilters = studyYears.flatMap { year ->
+        semesters.map { semester -> year to semester }
+    }.filter { filter ->
+        scheduleData.any { course ->
+            course.studyYear == filter.first && course.semester == filter.second
+        }
+    }
+
+    LazyRow(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceEvenly
+    ) {
+        items(combinedFilters.count()) { filter ->
+            FilterChip(
+                selected = selectedFilter == combinedFilters[filter],
+                onClick = { viewModel.setFilter(combinedFilters[filter]) },
+                label = { Text("${combinedFilters[filter].first} - ${combinedFilters[filter].second}") },
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
         }
     }
 }

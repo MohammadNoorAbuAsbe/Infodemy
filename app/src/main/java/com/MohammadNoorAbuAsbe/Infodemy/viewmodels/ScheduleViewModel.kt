@@ -110,10 +110,6 @@ class ScheduleViewModel(
         }
     }
 
-    fun toggleScheduleView() {
-        _showSchedule.value = !_showSchedule.value
-    }
-
     fun setFilter(filter: Pair<String, String>) {
         _selectedFilter.value = filter
     }
@@ -231,5 +227,9 @@ class ScheduleViewModel(
 
     fun refreshData() {
         loadScheduleData()
+    }
+
+    fun setShowSchedule(b: Boolean) {
+        _showSchedule.value = b;
     }
 }

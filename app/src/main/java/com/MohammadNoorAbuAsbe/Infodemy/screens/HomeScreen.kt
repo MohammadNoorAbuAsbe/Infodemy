@@ -81,14 +81,12 @@ fun HomeScreen(navController: NavController) {
     // Screen dimensions and scaling
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp.dp
-    val screenWidth = configuration.screenWidthDp.dp
     val scaleFactor = screenHeight / 960.dp
 
     // Scaled text sizes
     val titleSize = (20 * scaleFactor).sp
     val subtitleSize = (16 * scaleFactor).sp
     val bodySize = (14 * scaleFactor).sp
-    val gpaSize = (36 * scaleFactor).sp
 
     // Scaled paddings as Modifiers for easier composition
     val standardPadding = (16 * scaleFactor).dp
@@ -98,7 +96,6 @@ fun HomeScreen(navController: NavController) {
     // Scaled component sizes
     val iconSize = (48 * scaleFactor).dp
     val warningIconSize = (16 * scaleFactor).dp
-    val cardElevation = 2 * scaleFactor
 
     // Context and dependencies
     val context = LocalContext.current
@@ -116,7 +113,6 @@ fun HomeScreen(navController: NavController) {
     val isLoadingEvent by viewModel.isLoadingEvent.collectAsState()
     val upcomingEvents by viewModel.upcomingEvents.collectAsState()
     val isLoadingUpcoming by viewModel.isLoadingUpcoming.collectAsState()
-    val error by viewModel.error.collectAsState()
     val logoutComplete by viewModel.logoutComplete.collectAsState()
     val userName by viewModel.userName.collectAsState()
 
@@ -198,18 +194,6 @@ fun HomeScreen(navController: NavController) {
 
                 // Drawer items
                 NavigationDrawerItem(
-                    icon = { Icon(Icons.Default.BarChart, contentDescription = null) },
-                    label = { Text("Grades") },
-                    selected = false,
-                    onClick = {
-                        scope.launch {
-                            drawerState.close()
-                            navController.navigate("grades")
-                        }
-                    }
-                )
-
-                NavigationDrawerItem(
                     icon = { Icon(Icons.Default.Schedule, contentDescription = null) },
                     label = { Text("Schedule") },
                     selected = false,
@@ -217,6 +201,18 @@ fun HomeScreen(navController: NavController) {
                         scope.launch {
                             drawerState.close()
                             navController.navigate("schedule")
+                        }
+                    }
+                )
+
+                NavigationDrawerItem(
+                    icon = { Icon(Icons.Default.BarChart, contentDescription = null) },
+                    label = { Text("Grades") },
+                    selected = false,
+                    onClick = {
+                        scope.launch {
+                            drawerState.close()
+                            navController.navigate("grades")
                         }
                     }
                 )
@@ -366,7 +362,6 @@ fun HomeScreen(navController: NavController) {
                 UpcomingEventsSection(
                     upcomingEvents = upcomingEvents,
                     isLoading = isLoadingUpcoming,
-                    error = error,
                     standardPadding = standardPadding,
                     smallPadding = smallPadding,
                     titleSize = titleSize,
@@ -385,7 +380,6 @@ fun HomeScreen(navController: NavController) {
 fun UpcomingEventsSection(
     upcomingEvents: List<UpcomingEvent>,
     isLoading: Boolean,
-    error: String?,
     standardPadding: Dp,
     smallPadding: Dp,
     titleSize: TextUnit,

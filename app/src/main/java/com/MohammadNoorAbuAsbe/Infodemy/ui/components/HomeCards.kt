@@ -1,19 +1,26 @@
 
 package com.MohammadNoorAbuAsbe.Infodemy.ui.components
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import com.MohammadNoorAbuAsbe.Infodemy.data.models.EventInfo
 import com.MohammadNoorAbuAsbe.Infodemy.data.models.UpcomingEvent
+import com.MohammadNoorAbuAsbe.Infodemy.utils.DateUtils.formatTimeFromDateTime
 
 /**
  * Displays the current event card
@@ -32,62 +39,146 @@ fun CurrentEventCard(
     remainingTime: String, // Add remainingTime parameter
     countdownLabel: String // Add countdownLabel parameter
 ) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
-        modifier = Modifier.padding(standardPadding)
+    Text(
+        text = title,
+        fontSize = titleSize,
+        fontWeight = FontWeight.Bold,
+        color = MaterialTheme.colorScheme.primary,
+        modifier = Modifier.padding(bottom = smallPadding)
+    )
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp, horizontal = 18.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(
-            text = title,
-            fontSize = titleSize,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.padding(bottom = smallPadding)
-        )
-
         if (isLoading) {
             CircularProgressIndicator(
                 modifier = Modifier.padding(iconSize),
                 color = MaterialTheme.colorScheme.primary
             )
         } else {
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(smallPadding),
-                elevation = CardDefaults.cardElevation(4.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
-            ) {
-                if (currentEvent != null) {
+            //Time Indicator (10% width)
+            if (currentEvent != null) {
+                Column(
+                    modifier = Modifier
+                        .width(46.dp)  // Fixed width for time column
+                        .padding(end = 8.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    // Start time
+                    Text(
+                        text = formatTimeFromDateTime(currentEvent.startTime.substring(0, 5)),
+                        style = MaterialTheme.typography.labelMedium.copy(
+                            fontWeight = FontWeight.Medium
+                        ),
+                        color = MaterialTheme.colorScheme.onSurface,
+                        textAlign = TextAlign.Center
+                    )
+
+                    // Vertical time bar
+                    Box(
+                        modifier = Modifier
+                            .width(2.dp)
+                            .height(16.dp)
+                            .background(MaterialTheme.colorScheme.primary)
+                            .padding(vertical = 2.dp)
+                    )
+
+                    // End time
+                    Text(
+                        text = formatTimeFromDateTime(currentEvent.endTime.substring(0, 5)),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        textAlign = TextAlign.Center
+                    )
+                }
+                // Event Card (90% width)
+                Card(
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(12.dp),
+                    elevation = CardDefaults.cardElevation(4.dp),
+                    colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surface)
+                ) {
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(standardPadding),
-                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                            .padding(12.dp)
                     ) {
-                        Text(
-                            text = currentEvent.title,
-                            fontSize = subtitleSize,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.align(Alignment.End)
-                        )
-                        Text(
-                            text = "Location: ${currentEvent.place}",
-                            fontSize = bodySize
-                        )
-                        Text(
-                            text = "Time: ${currentEvent.startTime.substring(0, 5)} - ${currentEvent.endTime.substring(0, 5)}",
-                            fontSize = bodySize
-                        )
-                        // Display the countdown timer
-                        Text(
-                            text = "$countdownLabel: $remainingTime",
-                            fontSize = bodySize,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.primary,
-                        )
+                        // Title and warning
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(
+                                text = currentEvent.title,
+                                style = MaterialTheme.typography.titleMedium.copy(
+                                    fontWeight = FontWeight.SemiBold
+                                ),
+                                color = MaterialTheme.colorScheme.onSurface,
+                                maxLines = 1,
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
+
+                        // Location
+                        if (!currentEvent.place.isNullOrBlank() && currentEvent.place != "null") {
+                            Row(
+                                modifier = Modifier.padding(top = 6.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.LocationOn,
+                                    contentDescription = "Location",
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.size(16.dp)
+                                )
+                                Text(
+                                    text = currentEvent.place,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    maxLines = 1,
+                                    modifier = Modifier
+                                        .padding(start = 4.dp)
+                                        .weight(1f)
+                                )
+                            }
+                        }
+                        // Countdown timer
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .padding(top = 8.dp)
+                                .background(
+                                    color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.2f),
+                                    shape = MaterialTheme.shapes.small
+                                )
+                                .padding(horizontal = 12.dp, vertical = 8.dp)
+                        ) {
+                            Text(
+                                text = "$countdownLabel: ",
+                                fontSize = bodySize,
+                                fontWeight = FontWeight.Medium,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            Text(
+                                text = remainingTime,
+                                fontSize = bodySize,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.primary,
+                            )
+                        }
                     }
-                } else {
+                }
+            }
+            else {
+                Card(
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(12.dp),
+                    elevation = CardDefaults.cardElevation(4.dp),
+                    colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surface)
+                ) {
                     Text(
                         text = "No more events scheduled for today",
                         fontSize = bodySize,
@@ -112,67 +203,96 @@ fun UpcomingEventCard(
     tinyPadding: Dp,
     warningIconSize: Dp
 ) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(4.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = if (event.isExam)
-                MaterialTheme.colorScheme.errorContainer
-            else
-                MaterialTheme.colorScheme.surface
-        )
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp, horizontal = 4.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Row(
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(smallPadding),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+                .width(46.dp)  // Fixed width for time column
+                .padding(end = 8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            if (event.isExam) {
-                Icon(
-                    imageVector = Icons.Default.Warning,
-                    contentDescription = "Exam",
-                    tint = MaterialTheme.colorScheme.onErrorContainer,
-                    modifier = Modifier.padding(warningIconSize),
-                )
-            }
-
-            Column(
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(2.dp),
-                horizontalAlignment = Alignment.End
+            val daysLeft = event.calculateDaysLeft()
+            Text(
+                text = "$daysLeft",
+                style = MaterialTheme.typography.labelLarge.copy(
+                    fontWeight = FontWeight.ExtraBold
+                ),
+                color = MaterialTheme.colorScheme.primary,
+                textAlign = TextAlign.Center
+            )
+            Text(
+                text = "Days",
+                fontSize = bodySize,
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center
+            )
+        }
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            elevation = CardDefaults.cardElevation(4.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = if (event.isExam)
+                    MaterialTheme.colorScheme.errorContainer
+                else
+                    MaterialTheme.colorScheme.surface
+            )
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(smallPadding),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = event.title,
-                    fontSize = subtitleSize,
-                    fontWeight = FontWeight.Bold,
-                    color = if (event.isExam)
-                        MaterialTheme.colorScheme.onErrorContainer
-                    else
-                        MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                Column(
+                    modifier = Modifier.weight(1f).fillMaxWidth()
+                        .padding(12.dp),
+                    verticalArrangement = Arrangement.spacedBy(2.dp),
+                    horizontalAlignment = Alignment.End
 
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(2.dp),
-                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        text = event.date,
-                        fontSize = bodySize,
-                        color = if (event.isExam)
-                            MaterialTheme.colorScheme.onErrorContainer
-                        else
-                            MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            text = event.title,
+                            fontSize = subtitleSize,
+                            fontWeight = FontWeight.Bold,
+                            color = if (event.isExam)
+                                MaterialTheme.colorScheme.onErrorContainer
+                            else
+                                MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
 
-                    // Display days left in the same row
-                    val daysLeft = event.calculateDaysLeft()
-                    Text(
-                        text = "($daysLeft days left)",
-                        fontSize = bodySize,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(2.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.DateRange,
+                            contentDescription = "Date",
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Text(
+                            text = event.date,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 1,
+                            modifier = Modifier
+                                .padding(start = 4.dp)
+                                .weight(1f)
+                        )
+                    }
                 }
             }
         }
