@@ -43,21 +43,12 @@ class GradeCheckWorker(
             val responseBody = response.body?.string()
 
             if (response.isSuccessful && responseBody != null) {
-                val newGrades = parseGrades(responseBody).toSet()
-                val storedGrades = tokenManager.grades.first().map {
-                    val parts = it.split(": ")
-                    parts[0] to parts[1]
-                }.toSet()
+                val newGrades = parseGrades(responseBody)
+                val storedGrades = tokenManager.grades.first()
 
-                if (newGrades != storedGrades) {
-                    val newEntries = newGrades - storedGrades
-                    val existingCourses = storedGrades.map { it.first }.toSet()
-                    newEntries.forEachIndexed { index, (course, grade) ->
-                        if (course in existingCourses) {
-                            sendNotification("New Grade Update", "New grade for $course: $grade", index)
-                        }
-                    }
-                    tokenManager.saveGrades(newGrades.map { "${it.first}: ${it.second}" }.toSet())
+                if (newGrades.toSet() != storedGrades) {
+                    sendNotification("New Grade Update", "Your grades have been updated.")
+                    tokenManager.saveGrades(newGrades.toSet())
                 }
             }
 
@@ -67,20 +58,19 @@ class GradeCheckWorker(
         }
     }
 
-    private fun parseGrades(responseBody: String): List<Pair<String, String>> {
-        val gradesList = mutableListOf<Pair<String, String>>()
+    private fun parseGrades(responseBody: String): List<String> {
+        val gradesList = mutableListOf<String>()
         val jsonObject = JSONObject(responseBody)
         val clientData = jsonObject.getJSONObject("collapsedCourses").getJSONArray("clientData")
         for (i in 0 until clientData.length()) {
             val course = clientData.getJSONObject(i)
-            val courseName = course.getString("krs_shm")
             val grade = course.optString("moed_1_zin", "No grade")
-            gradesList.add(courseName to grade)
+            gradesList.add(grade)
         }
         return gradesList
     }
 
-    private fun sendNotification(title: String, message: String, notificationId: Int) {
+    private fun sendNotification(title: String, message: String) {
         createNotificationChannel()
         val intent = Intent(applicationContext, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
@@ -88,6 +78,7 @@ class GradeCheckWorker(
         }
         val pendingIntent: PendingIntent = PendingIntent.getActivity(applicationContext, 0, intent,
             PendingIntent.FLAG_IMMUTABLE)
+
 
         val builder = NotificationCompat.Builder(applicationContext, "grade_channel")
             .setSmallIcon(R.drawable.ic_notification)
@@ -98,7 +89,7 @@ class GradeCheckWorker(
             .setAutoCancel(true)
         try {
             with(NotificationManagerCompat.from(applicationContext)) {
-                notify(notificationId, builder.build())
+                notify(1, builder.build())
             }
         } catch (e: SecurityException) {
             e.printStackTrace()

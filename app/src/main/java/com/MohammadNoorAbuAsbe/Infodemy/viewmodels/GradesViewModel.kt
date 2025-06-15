@@ -110,10 +110,10 @@ class GradesViewModel(
      */
     fun getDisplayAverage(): String {
         return if (_selectedFilter.value == "All") {
-            "Cumulative Average: ${_cumulativeAverage.value}"
+            _cumulativeAverage.value
         } else {
             val index = _uniqueKrsSnl.value.indexOf(_selectedFilter.value)
-            "Annual Average: ${_annualAverages.value.getOrNull(index) ?: "N/A"}"
+            _annualAverages.value.getOrNull(index) ?: "N/A"
         }
     }
 
