@@ -55,3 +55,4 @@ fun MyRuppinTheme(
         content = content
     )
 }
+

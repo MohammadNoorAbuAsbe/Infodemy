@@ -15,8 +15,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.EventNote
 import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.EventNote
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Schedule
@@ -213,6 +215,18 @@ fun HomeScreen(navController: NavController) {
                         scope.launch {
                             drawerState.close()
                             navController.navigate("grades")
+                        }
+                    }
+                )
+
+                NavigationDrawerItem(
+                    icon = { Icon(Icons.AutoMirrored.Filled.EventNote, contentDescription = null) },
+                    label = { Text("Exams") },
+                    selected = false,
+                    onClick = {
+                        scope.launch {
+                            drawerState.close()
+                            navController.navigate("exams")
                         }
                     }
                 )

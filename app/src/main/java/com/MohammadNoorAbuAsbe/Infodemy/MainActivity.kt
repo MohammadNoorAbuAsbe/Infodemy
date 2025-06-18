@@ -24,6 +24,7 @@ import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.MohammadNoorAbuAsbe.Infodemy.screens.CreditsScreen
+import com.MohammadNoorAbuAsbe.Infodemy.screens.ExamsScreen
 import com.MohammadNoorAbuAsbe.Infodemy.screens.GradesScreen
 import com.MohammadNoorAbuAsbe.Infodemy.screens.HomeScreen
 import com.MohammadNoorAbuAsbe.Infodemy.screens.LoginScreen
@@ -181,6 +182,9 @@ fun AppNavigation() {
         }
         composable("messages") {
             MessagesScreen(navController)
+        }
+        composable("exams") {
+            ExamsScreen(navController)
         }
     }
 }

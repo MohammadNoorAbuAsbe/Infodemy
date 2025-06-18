@@ -1,6 +1,7 @@
 package com.MohammadNoorAbuAsbe.Infodemy.data.models
 
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 
@@ -134,3 +135,31 @@ data class Message(
     val text: String,
     val date: String
 )
+
+data class Exam(
+    val rowkey: String,
+    val courseName: String,
+    val examType: String,
+    val date: String,
+    val hebrewDate: String,
+    val formattedDateTime: String,
+    val time: String,
+    val location: String,
+    val eligibility: String,
+    val eligibilityDetails: String,
+    val semester: String,
+    val semesterNumber: Int,
+    val examMoed: Int,
+    val courseNumber: String,
+    val lecturer: String,
+    val moedOrder: String,
+    val krsSnl: String
+){
+    fun calculateDaysLeft(): Long {
+        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
+        val examLocalDateTime = LocalDateTime.parse(date, formatter)
+        val examLocalDate = examLocalDateTime.toLocalDate()
+        val currentDate = LocalDate.now()
+        return ChronoUnit.DAYS.between(currentDate, examLocalDate)
+    }
+}
