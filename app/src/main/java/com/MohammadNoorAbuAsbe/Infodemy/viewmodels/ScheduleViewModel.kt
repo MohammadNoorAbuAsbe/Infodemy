@@ -17,8 +17,13 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.io.IOException
+import java.time.DayOfWeek
 import java.time.LocalDate
+import java.time.LocalTime
 import java.time.YearMonth
+import java.time.format.DateTimeFormatter
+import kotlin.random.Random
+import kotlin.text.format
 
 class ScheduleViewModel(
     private val repository: ScheduleRepository,
@@ -77,24 +82,30 @@ class ScheduleViewModel(
                     try {
                         _isLoading.value = true
                         _error.value = null // Reset error before starting
+                        if (token == TokenManager.DEMO_TOKEN_VALUE) {
+                            loadDemoScheduleData()
+                        } else {
 
-                        val paramsDeferred = async { repository.fetchScheduleParams(currentToken) }
-                        val params = paramsDeferred.await()
-                        _scheduleParams.value = params
+                            val paramsDeferred =
+                                async { repository.fetchScheduleParams(currentToken) }
+                            val params = paramsDeferred.await()
+                            _scheduleParams.value = params
 
-                        val coursesDeferred = async { repository.fetchSchedule(currentToken, params) }
-                        val courses = coursesDeferred.await()
-                        _scheduleData.value = courses
+                            val coursesDeferred =
+                                async { repository.fetchSchedule(currentToken, params) }
+                            val courses = coursesDeferred.await()
+                            _scheduleData.value = courses
 
-                        if (_selectedFilter.value == null && courses.isNotEmpty()) {
-                            val studyYears = courses.map { it.studyYear }.distinct()
-                            val semesters = courses.map { it.semester }.distinct().reversed()
-                            if (studyYears.isNotEmpty() && semesters.isNotEmpty()) {
-                                _selectedFilter.value = studyYears.first() to semesters.first()
+                            if (_selectedFilter.value == null && courses.isNotEmpty()) {
+                                val studyYears = courses.map { it.studyYear }.distinct()
+                                val semesters = courses.map { it.semester }.distinct().reversed()
+                                if (studyYears.isNotEmpty() && semesters.isNotEmpty()) {
+                                    _selectedFilter.value = studyYears.first() to semesters.first()
+                                }
                             }
-                        }
 
-                        fetchMonthSchedule(currentToken, _currentMonth.value, params)
+                            fetchMonthSchedule(currentToken, _currentMonth.value, params)
+                        }
                     } catch (e: IOException) {
                         _error.value = "Network error: ${e.message}. Please check your internet connection."
                     } catch (e: Exception) {
@@ -108,6 +119,124 @@ class ScheduleViewModel(
                 }
             }
         }
+    }
+
+    private fun loadDemoScheduleData() {
+        viewModelScope.launch(exceptionHandler) {
+            _isLoading.value = true
+            _error.value = null
+
+            _scheduleParams.value = ScheduleParams(
+                hash = "demo_hash_string_123",
+                pt = 1, // Demo program type
+                ptMsl = 101, // Demo program track
+                shl = 20232 // Demo academic year/semester code
+            )
+
+            val demoCourses = listOf(
+                ScheduleCourse(name = "Demo Mobile Dev", instructor = "Dr. Demo Droid", startTime = "09:00", endTime = "11:00", day = "MONDAY", location = "Room D101", semester = "A", studyYear = "Year 3"),
+                ScheduleCourse(name = "Demo Algorithms Lab", instructor = "TA Demo Byte", startTime = "11:00", endTime = "13:00", day = "MONDAY", location = "Lab D102", semester = "A", studyYear = "Year 3"),
+                ScheduleCourse(name = "Demo Web Tech", instructor = "Prof. Demo Web", startTime = "14:00", endTime = "16:00", day = "WEDNESDAY", location = "Room D201", semester = "A", studyYear = "Year 3"),
+                ScheduleCourse(name = "Demo Databases", instructor = "Dr. Demo SQL", startTime = "10:00", endTime = "12:00", day = "FRIDAY", location = "Room D301", semester = "B", studyYear = "Year 2")
+            )
+            _scheduleData.value = demoCourses
+
+            // 3. Set initial filter if not set
+            if (_selectedFilter.value == null && demoCourses.isNotEmpty()) {
+                val studyYears = demoCourses.map { it.studyYear }.distinct()
+                val semesters = demoCourses.map { it.semester }.distinct().reversed()
+                if (studyYears.isNotEmpty() && semesters.isNotEmpty()) {
+                    _selectedFilter.value = studyYears.first() to semesters.first()
+                }
+            }
+
+            // 4. Fetch/Generate Demo Month Schedule
+            // For demo, we'll generate some static data for the current month
+            // and simulate the caching mechanism.
+            _scheduleParams.value?.let { params ->
+                fetchDemoMonthSchedule(_currentMonth.value, params)
+            }
+            _isLoading.value = false
+            _showSchedule.value = true // Assuming we always show schedule if data is loaded
+        }
+    }
+
+    private fun fetchDemoMonthSchedule(yearMonth: YearMonth, params: ScheduleParams) {
+        // Prevent concurrent demo data generation for the same month if already running
+        if (_isFetchingMonthData.value && _fetchedDateRanges.value.contains("${yearMonth}-DEMO")) return
+        _isFetchingMonthData.value = true
+        _isLoading.value = true // Indicate loading for month data generation
+
+        val demoDaySchedulesForMonth = mutableListOf<DaySchedule>()
+        val firstDayOfMonth = yearMonth.atDay(1)
+        val lastDayOfMonth = yearMonth.atEndOfMonth()
+
+        // Formatter for time strings (HH:mm)
+        val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
+        // Formatter for the date string in DaySchedule (yyyy-MM-ddTHH:mm:ss)
+        // The time part can be arbitrary (e.g., start of day) if DaySchedule.date is just for the date.
+        // Or, it can be specific if the 'date' field is meant to be a full timestamp.
+        // Let's assume DaySchedule.date is a full timestamp representing the start of the event.
+        val dayScheduleDateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
+
+
+        var currentDayIterator = firstDayOfMonth
+        while (!currentDayIterator.isAfter(lastDayOfMonth)) {
+            val dayOfWeek = currentDayIterator.dayOfWeek
+
+            // Only add events for weekdays for this demo (e.g., Monday to Friday)
+            if (dayOfWeek != DayOfWeek.SATURDAY && dayOfWeek != DayOfWeek.SUNDAY) {
+                // Let's add 1 to 2 random events per demo weekday
+                val numberOfEvents = Random.nextInt(1, 3)
+                for (i in 1..numberOfEvents) {
+                    val startHour = Random.nextInt(8, 16) // Events start between 8 AM and 4 PM
+                    val startMinute = if (Random.nextBoolean()) 0 else 30 // On the hour or half hour
+                    val eventStartTime = LocalTime.of(startHour, startMinute)
+                    // Event duration 1 or 2 hours
+                    val eventEndTime = eventStartTime.plusHours(Random.nextLong(1, 3))
+
+                    // Ensure end time does not exceed a reasonable time (e.g., 18:00)
+                    val maxEndTime = LocalTime.of(18, 0)
+                    val finalEndTime = if (eventEndTime.isAfter(maxEndTime)) maxEndTime else eventEndTime
+
+
+                    // Construct the full date-time string for DaySchedule's 'date' field
+                    val eventFullDateTimeStr = currentDayIterator.atTime(eventStartTime).format(dayScheduleDateFormatter)
+
+                    demoDaySchedulesForMonth.add(
+                        DaySchedule(
+                            date = eventFullDateTimeStr, // e.g., "2023-01-15T09:00:00"
+                            title = "Demo ${if (Random.nextBoolean()) "Lecture" else "Lab"} ${Random.nextInt(1, 20)}",
+                            startTime = eventStartTime.format(timeFormatter), // "09:00"
+                            endTime = finalEndTime.format(timeFormatter),   // "11:00"
+                            place = "Demo Room ${Random.nextInt(100, 305)}",
+                            moreInfo = "Instructor: Prof. Demo ${Random.nextInt(1, 10)}\nTopic: Introduction to Demo Topic ${Random.nextInt(1,5)}"
+                        )
+                    )
+                }
+            }
+            currentDayIterator = currentDayIterator.plusDays(1)
+        }
+
+        // Simulate caching mechanism: update _allMonthSchedules
+        // Group schedules by their date part (yyyy-MM-dd) for the cache key
+        val newCache = _allMonthSchedules.value.toMutableMap()
+        demoDaySchedulesForMonth.groupBy { it.date.substring(0, 10) } // Group by "yyyy-MM-dd"
+            .forEach { (dateKey, schedulesOnDate) ->
+                // If there are existing schedules for this date (e.g. from another demo fetch), append.
+                // Or, replace if that's the desired behavior for demo. Let's append for now.
+                val existingSchedules = newCache[dateKey] ?: emptyList()
+                newCache[dateKey] = existingSchedules + schedulesOnDate
+            }
+        _allMonthSchedules.value = newCache
+
+        // Simulate fetched date ranges (mark the whole month as "fetched" for demo)
+        _fetchedDateRanges.value = _fetchedDateRanges.value + "${yearMonth}-DEMO"
+
+        updateMonthScheduleFromCache(yearMonth) // This will filter from _allMonthSchedules for the current _monthSchedule
+
+        _isFetchingMonthData.value = false
+        _isLoading.value = false
     }
 
     fun setFilter(filter: Pair<String, String>) {

@@ -18,6 +18,7 @@ class TokenManager(private val context: Context) {
         private val STUDENT_ID_KEY = stringPreferencesKey("student_id")
         private val PASSWORD_KEY = stringPreferencesKey("password")
         private val GRADES_KEY = stringSetPreferencesKey("grades")
+        const val DEMO_TOKEN_VALUE = "static_demo_token_for_testing"
     }
 
     // Save all credentials

@@ -36,61 +36,77 @@ fun LoginScreen(navController: NavController, modifier: Modifier = Modifier) {
     val savedId by tokenManager.studentId.collectAsState(initial = null)
     val savedPassword by tokenManager.password.collectAsState(initial = null)
 
+    // Define demo credentials
+    val DEMO_STUDENT_ID = "demo"
+    val DEMO_PASSWORD = "demo"
+    val DEMO_TOKEN = "static_demo_token_for_testing"
+
     val tryLogin = { studentId: String, pwd: String ->
         isLoading = true
         scope.launch {
-            try {
-                val jsonObject = JSONObject().apply {
-                    put("loginType", "student")
-                    put("password", pwd)
-                    put("zht", studentId)
+            // Check for demo account
+            if (studentId == DEMO_STUDENT_ID && pwd == DEMO_PASSWORD) {
+                tokenManager.saveCredentials(DEMO_TOKEN, studentId, pwd)
+                responseText = "Demo Login successful!"
+                isLoading = false
+                navController.navigate("home") {
+                    popUpTo("login") { inclusive = true }
                 }
-
-                val requestBody = jsonObject.toString()
-                    .toRequestBody("application/json".toMediaType())
-
-                val request = Request.Builder()
-                    .url("https://ruppinet.ruppin.ac.il/Portals/api/Login/Login")
-                    .post(requestBody)
-                    .header("Content-Type", "application/json")
-                    .header("Accept", "application/json")
-                    .build()
-
-                client.newCall(request).enqueue(object : Callback {
-                    override fun onFailure(call: Call, e: IOException) {
-                        scope.launch {
-                            responseText = "Error: ${e.message}"
-                            isLoading = false
-                        }
+            } else {
+                // Proceed with actual network login
+                try {
+                    val jsonObject = JSONObject().apply {
+                        put("loginType", "student")
+                        put("password", pwd)
+                        put("zht", studentId)
                     }
 
-                    override fun onResponse(call: Call, response: Response) {
-                        val responseBody = response.body?.string() ?: ""
-                        scope.launch {
-                            try {
-                                val jsonResponse = JSONObject(responseBody)
-                                val success = jsonResponse.getBoolean("success")
-                                if (success) {
-                                    val newToken = jsonResponse.getString("token")
-                                    tokenManager.saveCredentials(newToken, studentId, pwd)
-                                    responseText = "Login successful!"
-                                    navController.navigate("home") {
-                                        popUpTo("login") { inclusive = true }
-                                    }
-                                } else {
-                                    responseText = "Login failed"
-                                }
-                            } catch (e: Exception) {
-                                responseText = "Error parsing response: ${e.message}"
-                            } finally {
+                    val requestBody = jsonObject.toString()
+                        .toRequestBody("application/json".toMediaType())
+
+                    val request = Request.Builder()
+                        .url("https://ruppinet.ruppin.ac.il/Portals/api/Login/Login")
+                        .post(requestBody)
+                        .header("Content-Type", "application/json")
+                        .header("Accept", "application/json")
+                        .build()
+
+                    client.newCall(request).enqueue(object : Callback {
+                        override fun onFailure(call: Call, e: IOException) {
+                            scope.launch {
+                                responseText = "Error: ${e.message}"
                                 isLoading = false
                             }
                         }
-                    }
-                })
-            } catch (e: Exception) {
-                responseText = "Error: ${e.message}"
-                isLoading = false
+
+                        override fun onResponse(call: Call, response: Response) {
+                            val responseBody = response.body?.string() ?: ""
+                            scope.launch {
+                                try {
+                                    val jsonResponse = JSONObject(responseBody)
+                                    val success = jsonResponse.getBoolean("success")
+                                    if (success) {
+                                        val newToken = jsonResponse.getString("token")
+                                        tokenManager.saveCredentials(newToken, studentId, pwd)
+                                        responseText = "Login successful!"
+                                        navController.navigate("home") {
+                                            popUpTo("login") { inclusive = true }
+                                        }
+                                    } else {
+                                        responseText = "Login failed"
+                                    }
+                                } catch (e: Exception) {
+                                    responseText = "Error parsing response: ${e.message}"
+                                } finally {
+                                    isLoading = false
+                                }
+                            }
+                        }
+                    })
+                } catch (e: Exception) {
+                    responseText = "Error: ${e.message}"
+                    isLoading = false
+                }
             }
         }
     }
