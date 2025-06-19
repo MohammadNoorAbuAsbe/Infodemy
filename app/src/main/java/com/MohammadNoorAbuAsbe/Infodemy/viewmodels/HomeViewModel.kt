@@ -1,25 +1,18 @@
 package com.MohammadNoorAbuAsbe.Infodemy.viewmodels
 
-import android.icu.util.Calendar
-import androidx.compose.foundation.layout.add
-import androidx.compose.ui.text.intl.Locale
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.MohammadNoorAbuAsbe.Infodemy.data.TokenManager
 import com.MohammadNoorAbuAsbe.Infodemy.data.models.EventInfo
 import com.MohammadNoorAbuAsbe.Infodemy.data.models.UpcomingEvent
 import com.MohammadNoorAbuAsbe.Infodemy.data.models.AcademicData
-import com.MohammadNoorAbuAsbe.Infodemy.data.models.AcademicProgram
 import com.MohammadNoorAbuAsbe.Infodemy.data.repository.HomeRepository
-import com.google.type.Date
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.io.IOException
-import java.text.SimpleDateFormat
-import kotlin.text.format
 
 class HomeViewModel(
     private val repository: HomeRepository,
@@ -87,124 +80,17 @@ class HomeViewModel(
     /**
      * Loads all home screen data
      */
-
     private fun loadHomeData() {
         viewModelScope.launch {
-            // Set loading states true at the beginning of the data loading process
-            _isLoadingEvent.value = true
-            _isLoadingUpcoming.value = true
-            _error.value = null // Clear previous errors
-
             tokenManager.token.collectLatest { token ->
-                if (token == null) {
-                    _error.value = "User not logged in or token is missing."
-                    _isLoadingEvent.value = false
-                    _isLoadingUpcoming.value = false
-                    // Potentially clear data or navigate to login
-                    _currentEvent.value = null
-                    _nextEvent.value = null
-                    _upcomingEvents.value = emptyList()
-                    _userName.value = null
-                    _academicData.value = null
-                    return@collectLatest
-                }
-
-                if (token == TokenManager.DEMO_TOKEN_VALUE) {
-                    loadDemoData()
-                } else {
-                    // Load real data
-                    loadCurrentEvent(token)
-                    loadUpcomingEvents(token)
-                    loadUserName(token)
-                    loadAcademicData(token) // Load academic data
+                token?.let { currentToken ->
+                    loadCurrentEvent(currentToken)
+                    loadUpcomingEvents(currentToken)
+                    loadUserName(currentToken)
+                    loadAcademicData(currentToken) // Load academic data
                 }
             }
         }
-    }
-
-    private fun loadDemoData() {
-        // Demo User Name
-        _userName.value = "Demo User"
-
-        // Demo Academic Data
-        _academicData.value = AcademicData(
-            msls = listOf(
-                AcademicProgram(
-                    msl = "Software Engineering (Demo Program)",
-                    pdgSnl = "PDG123DEMO",
-                    ptStatus = "Active (Demo)",
-                    registrationStatus = "Registered (Demo)"
-                ),
-                AcademicProgram(
-                    msl = "Computer Science Minor (Demo)",
-                    pdgSnl = "CSM456DEMO",
-                    ptStatus = "Completed (Demo)",
-                    registrationStatus = "N/A (Demo)"
-                )
-            ),
-            snl = "SNL789DEMO"
-        )
-
-        // Demo Current/Next Event
-        val calendar = Calendar.getInstance()
-        val sdfTime = SimpleDateFormat("HH:mm")
-
-        val demoCurrentStartTime = sdfTime.format(calendar.time)
-        calendar.add(Calendar.HOUR_OF_DAY, 1) // Current event lasts 1 hour
-        val demoCurrentEndTime = sdfTime.format(calendar.time)
-
-        _currentEvent.value = EventInfo(
-            title = "Demo Current Lecture: Android Basics",
-            startTime = demoCurrentStartTime,
-            endTime = demoCurrentEndTime,
-            place = "Virtual Room D1",
-        )
-
-        // For next event, let's say it starts right after the current one
-        val demoNextStartTime = demoCurrentEndTime
-        calendar.add(Calendar.HOUR_OF_DAY, 1) // Next event also lasts 1 hour
-        val demoNextEndTime = sdfTime.format(calendar.time)
-
-        _nextEvent.value = EventInfo(
-            title = "Demo Next Lab: UI Design",
-            startTime = demoNextStartTime,
-            endTime = demoNextEndTime,
-            place = "Lab D2",
-        )
-        _isLoadingEvent.value = false // Demo events loaded
-
-        // Demo Upcoming Events
-        val sdfDate = SimpleDateFormat("dd/MM/yyyy")
-        val upcomingDemoEvents = mutableListOf<UpcomingEvent>()
-        calendar.time = java.util.Date() // Reset calendar to today for upcoming events
-
-        calendar.add(Calendar.DAY_OF_YEAR, 3)
-        upcomingDemoEvents.add(
-            UpcomingEvent(
-                title = "Demo Quiz 1",
-                date = sdfDate.format(calendar.time),
-                isExam = false
-            )
-        )
-        calendar.add(Calendar.DAY_OF_YEAR, 7)
-        upcomingDemoEvents.add(
-            UpcomingEvent(
-                title = "Demo Midterm: Data Structures",
-                date = sdfDate.format(calendar.time),
-                isExam = true
-            )
-        )
-        calendar.add(Calendar.DAY_OF_YEAR, 10)
-        upcomingDemoEvents.add(
-            UpcomingEvent(
-                title = "Demo Project Alpha Due",
-                date = sdfDate.format(calendar.time),
-                isExam = false
-            )
-        )
-        _upcomingEvents.value = upcomingDemoEvents
-        _isLoadingUpcoming.value = false // Demo upcoming events loaded
-        _error.value = null // Clear any previous errors
     }
 
     /**

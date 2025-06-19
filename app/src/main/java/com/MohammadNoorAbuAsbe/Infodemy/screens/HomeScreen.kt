@@ -206,49 +206,42 @@ fun HomeScreen(navController: NavController) {
                         }
                     }
                 )
-                val isDemoMode = token == TokenManager.DEMO_TOKEN_VALUE
-                if (!isDemoMode) {
-                    NavigationDrawerItem(
-                        icon = { Icon(Icons.Default.BarChart, contentDescription = null) },
-                        label = { Text("Grades") },
-                        selected = false,
-                        onClick = {
-                            scope.launch {
-                                drawerState.close()
-                                navController.navigate("grades")
-                            }
-                        }
-                    )
 
-                    NavigationDrawerItem(
-                        icon = {
-                            Icon(
-                                Icons.AutoMirrored.Filled.EventNote,
-                                contentDescription = null
-                            )
-                        },
-                        label = { Text("Exams") },
-                        selected = false,
-                        onClick = {
-                            scope.launch {
-                                drawerState.close()
-                                navController.navigate("exams")
-                            }
+                NavigationDrawerItem(
+                    icon = { Icon(Icons.Default.BarChart, contentDescription = null) },
+                    label = { Text("Grades") },
+                    selected = false,
+                    onClick = {
+                        scope.launch {
+                            drawerState.close()
+                            navController.navigate("grades")
                         }
-                    )
+                    }
+                )
 
-                    NavigationDrawerItem(
-                        icon = { Icon(Icons.Default.Email, contentDescription = null) },
-                        label = { Text("Messages") },
-                        selected = false,
-                        onClick = {
-                            scope.launch {
-                                drawerState.close()
-                                navController.navigate("messages")
-                            }
+                NavigationDrawerItem(
+                    icon = { Icon(Icons.AutoMirrored.Filled.EventNote, contentDescription = null) },
+                    label = { Text("Exams") },
+                    selected = false,
+                    onClick = {
+                        scope.launch {
+                            drawerState.close()
+                            navController.navigate("exams")
                         }
-                    )
-                }
+                    }
+                )
+
+                NavigationDrawerItem(
+                    icon = { Icon(Icons.Default.Email, contentDescription = null) },
+                    label = { Text("Messages") },
+                    selected = false,
+                    onClick = {
+                        scope.launch {
+                            drawerState.close()
+                            navController.navigate("messages")
+                        }
+                    }
+                )
 
                 HorizontalDivider()
 
