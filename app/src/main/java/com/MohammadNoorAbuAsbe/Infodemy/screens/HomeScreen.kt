@@ -232,6 +232,18 @@ fun HomeScreen(navController: NavController) {
                 )
 
                 NavigationDrawerItem(
+                    icon = { Icon(Icons.AutoMirrored.Filled.EventNote, contentDescription = null) },
+                    label = { Text("Maazan") },
+                    selected = false,
+                    onClick = {
+                        scope.launch {
+                            drawerState.close()
+                            navController.navigate("maazan")
+                        }
+                    }
+                )
+
+                NavigationDrawerItem(
                     icon = { Icon(Icons.Default.Email, contentDescription = null) },
                     label = { Text("Messages") },
                     selected = false,

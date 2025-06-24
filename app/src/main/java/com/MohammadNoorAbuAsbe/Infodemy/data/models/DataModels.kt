@@ -163,3 +163,77 @@ data class Exam(
         return ChronoUnit.DAYS.between(currentDate, examLocalDate)
     }
 }
+
+
+
+data class MaazanResponse(
+    val maazan: Maazan
+)
+
+data class Maazan(
+    val masHits: List<MasHit>
+)
+
+data class MasHit(
+    val tchums: List<Tchum>?,
+    val isSumUpRecord: Boolean,
+    val name: String,
+    val zin: String,
+    val nidrash: String,
+    val nirsham: String,
+    val nilmad: String,
+    val ptor: String,
+    val notar: String,
+    val ahuz: String,
+    val description: String?,
+    val isNotComplete: Boolean
+)
+
+data class Tchum(
+    val secondariesTchums: Any?,
+    val krss: List<Krs>?,
+    val name: String,
+    val zin: String,
+    val nidrash: String,
+    val nirsham: String,
+    val nilmad: String,
+    val ptor: String,
+    val notar: String,
+    val ahuz: String,
+    val description: String?,
+    val isNotComplete: Boolean
+)
+
+data class Krs(
+    val style: String,
+    val name: String,
+    val zin: String,
+    val nidrash: String,
+    val nirsham: String,
+    val nilmad: String,
+    val ptor: String,
+    val notar: String,
+    val ahuz: String,
+    val description: String?,
+    val isNotComplete: Boolean
+)
+
+data class MaazanData(
+    val masHits: List<MasHit>
+)
+
+data class MaazanConfigResponse(
+    val msls: List<Msl>,
+    val msgStatus: Int,
+    val errorMsg: Boolean,
+    val maazanErrorMsg: Boolean
+)
+
+data class Msl(
+    val nmrtr: Int,
+    val ptMsl: Int,
+    val isTofesTiulim: Boolean,
+    val name: String,
+    val pdg: String,
+    val __hash: String
+)

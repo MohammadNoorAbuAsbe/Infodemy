@@ -28,6 +28,7 @@ import com.MohammadNoorAbuAsbe.Infodemy.screens.ExamsScreen
 import com.MohammadNoorAbuAsbe.Infodemy.screens.GradesScreen
 import com.MohammadNoorAbuAsbe.Infodemy.screens.HomeScreen
 import com.MohammadNoorAbuAsbe.Infodemy.screens.LoginScreen
+import com.MohammadNoorAbuAsbe.Infodemy.screens.MaazanScreen
 import com.MohammadNoorAbuAsbe.Infodemy.screens.MessagesScreen
 import com.MohammadNoorAbuAsbe.Infodemy.screens.ScheduleScreen
 import com.MohammadNoorAbuAsbe.Infodemy.ui.theme.MyRuppinTheme
@@ -185,6 +186,9 @@ fun AppNavigation() {
         }
         composable("exams") {
             ExamsScreen(navController)
+        }
+        composable("maazan") {
+            MaazanScreen(navController)
         }
     }
 }
