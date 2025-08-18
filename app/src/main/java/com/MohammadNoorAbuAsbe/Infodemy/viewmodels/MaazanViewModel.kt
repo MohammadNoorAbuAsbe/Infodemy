@@ -29,10 +29,6 @@ class MaazanViewModel(
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error.asStateFlow()
 
-    // Section expansion states
-    private val _expandedSections = mutableMapOf<String, Boolean>()
-    val expandedSections: Map<String, Boolean> get() = _expandedSections
-
     init {
         loadMaazanData()
     }
@@ -63,13 +59,6 @@ class MaazanViewModel(
                 }
             }
         }
-    }
-
-    /**
-     * Toggles section expansion state
-     */
-    fun toggleSection(sectionId: String) {
-        _expandedSections[sectionId] = !(_expandedSections[sectionId] ?: false)
     }
 
     /**
