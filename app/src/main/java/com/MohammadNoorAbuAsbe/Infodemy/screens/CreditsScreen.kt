@@ -25,6 +25,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
@@ -136,7 +137,7 @@ fun CreditsScreen(navController: NavController) {
             ) {
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
-                    text = "Version 3.3.4",
+                    text = "Version ${getAppVersion()}",
                     fontSize = 14.sp,
                     fontStyle = FontStyle.Italic,
                     color = Color.Gray
@@ -150,5 +151,16 @@ fun CreditsScreen(navController: NavController) {
                 )
             }
         }
+    }
+}
+
+@Composable
+fun getAppVersion(): String {
+    val context = LocalContext.current
+    return try {
+        val pInfo = context.packageManager.getPackageInfo(context.packageName, 0)
+        pInfo.versionName ?: "N/A"
+    } catch (e: Exception) {
+        "N/A"
     }
 }
