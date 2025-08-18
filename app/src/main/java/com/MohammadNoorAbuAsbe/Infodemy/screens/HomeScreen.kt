@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.EventNote
+import androidx.compose.material.icons.filled.Badge
 import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.EventNote
@@ -251,6 +252,18 @@ fun HomeScreen(navController: NavController) {
                         scope.launch {
                             drawerState.close()
                             navController.navigate("messages")
+                        }
+                    }
+                )
+
+                NavigationDrawerItem(
+                    icon = { Icon(Icons.Default.Badge, contentDescription = null) },
+                    label = { Text("Student Card") },
+                    selected = false,
+                    onClick = {
+                        scope.launch {
+                            drawerState.close()
+                            navController.navigate("studentCard")
                         }
                     }
                 )
