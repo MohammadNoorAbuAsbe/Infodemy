@@ -1,5 +1,7 @@
 package com.MohammadNoorAbuAsbe.Infodemy.screens
 
+import android.content.Intent
+import android.net.Uri
 import android.os.CountDownTimer
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -25,6 +27,7 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material.icons.filled.School
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -271,6 +274,19 @@ fun HomeScreen(navController: NavController) {
                     }
                 )
 
+                NavigationDrawerItem(
+                    icon = { Icon(Icons.Default.School, contentDescription = null) },
+                    label = { Text("Moodle") },
+                    selected = false,
+                    onClick = {
+                        scope.launch {
+                            drawerState.close()
+                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://moodle.ruppin.ac.il/login/index.php"))
+                            context.startActivity(intent)
+                        }
+                    }
+                )
+
                 HorizontalDivider()
 
                 NavigationDrawerItem(
@@ -286,7 +302,7 @@ fun HomeScreen(navController: NavController) {
                 )
 
                 HorizontalDivider()
-                
+
                 NavigationDrawerItem(
                     icon = { Icon(Icons.Default.Logout, contentDescription = null) },
                     label = { Text("Logout") },
