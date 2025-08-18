@@ -43,6 +43,7 @@ fun StudentCardScreen(navController: NavController) {
     val viewModel: StudentCardViewModel = viewModel(
         factory = StudentCardViewModelFactory(repository, tokenManager)
     )
+    var isNavigating by remember { mutableStateOf(false) }
 
     val uiState by viewModel.uiState.collectAsState()
     val currentDateTime by viewModel.currentDateTime.collectAsState()
@@ -52,11 +53,15 @@ fun StudentCardScreen(navController: NavController) {
             TopAppBar(
                 title = { Text("כרטיס סטודנט/ית", color = Color.White) },
                 navigationIcon = {
-                    IconButton(onClick = { navController.navigateUp() }) {
+                    IconButton(onClick = {
+                        if (!isNavigating) {
+                            isNavigating = true
+                            navController.popBackStack()
+                        }
+                    }) {
                         Icon(
-                            Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back",
-                            tint = Color.White
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back"
                         )
                     }
                 },

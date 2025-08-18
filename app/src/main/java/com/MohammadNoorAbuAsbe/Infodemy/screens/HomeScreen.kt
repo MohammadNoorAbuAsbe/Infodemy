@@ -16,10 +16,10 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.EventNote
+import androidx.compose.material.icons.automirrored.filled.TrendingUp
 import androidx.compose.material.icons.filled.Badge
 import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.EventNote
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Schedule
@@ -233,8 +233,8 @@ fun HomeScreen(navController: NavController) {
                 )
 
                 NavigationDrawerItem(
-                    icon = { Icon(Icons.AutoMirrored.Filled.EventNote, contentDescription = null) },
-                    label = { Text("Maazan") },
+                    icon = { Icon(Icons.AutoMirrored.Filled.TrendingUp, contentDescription = null) },
+                    label = { Text("Academic Progress") },
                     selected = false,
                     onClick = {
                         scope.launch {

@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.School
@@ -43,39 +44,11 @@ object AcademicLabels {
         "ptor" to "פטור", // Exempted
         "notar" to "נותר", // Remaining
         "ahuz" to "אחוז", // Percentage
-        "track" to "מסלול", // Track/Program
-        "speciality" to "התמחות", // Speciality
-        "mashit" to "משיט", // Academic track
-        "tchum" to "תחום", // Field/Domain
-        "krs" to "קורס" // Course
-    )
-
-    // Additional context-based translations for common academic terms
-    val contextLabels = mapOf(
-        "Forms.Modules.Maazan.Track" to "מסלול",
-        "Forms.Modules.Maazan.Speciality" to "התמחות",
-        "מעזן אקדמי" to "מעזן אקדמי",
-        "סיכום כללי" to "סיכום כללי",
-        "תחומי לימוד" to "תחומי לימוד",
-        "קורסים" to "קורסים"
     )
 
     fun getFieldLabel(field: String): String {
         // First check exact matches
         fieldLabels[field]?.let { return it }
-
-        // Check context-based matches
-        contextLabels[field]?.let { return it }
-
-        // Handle compound field names (like forms.Moduls.mazaan.track)
-        when {
-            field.contains("Track") -> return "מסלול"
-            field.contains("speciality") || field.contains("specialty") -> return "התמחות"
-            field.contains("mashit") || field.contains("masHit") -> return "משיט"
-            field.contains("tchum") -> return "תחום"
-            field.contains("krs") || field.contains("course") -> return "קורס"
-        }
-
         // Default fallback
         return field.replaceFirstChar { it.uppercase() }
     }
@@ -110,6 +83,7 @@ fun MaazanScreen(navController: NavController) {
     val maazanData by viewModel.maazanData.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val error by viewModel.error.collectAsState()
+    var isNavigating by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -127,7 +101,7 @@ fun MaazanScreen(navController: NavController) {
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            "מעזן אקדמי",
+                            "מאזן אקדמי",
                             style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
                         )
                     }
@@ -135,7 +109,20 @@ fun MaazanScreen(navController: NavController) {
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                )
+                ),
+                navigationIcon = {
+                    IconButton(onClick = {
+                        if (!isNavigating) {
+                            isNavigating = true
+                            navController.popBackStack()
+                        }
+                    }) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back"
+                        )
+                    }
+                }
             )
         }
     ) { padding ->
