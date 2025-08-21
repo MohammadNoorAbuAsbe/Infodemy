@@ -237,3 +237,42 @@ data class Msl(
     val pdg: String,
     val __hash: String
 )
+
+// Student Card Models
+data class StudentCardDataResponse(
+    val snlsData: List<SnlData>,
+    val zht: String,
+    val title: String?,
+    val gtm: String?,
+    val toolbar: String?,
+    val headerText: String?
+)
+
+data class SnlData(
+    val snl: String,
+    val selected: Boolean,
+    val __hash: String
+)
+
+data class StudentCardResponse(
+    val studentCard: StudentCard
+)
+
+data class StudentCard(
+    val displayStudentCard: Boolean,
+    val snl: String?,
+    val institute: String,
+    val studentsAssociationLogo: String?,
+    val instituteLogo: String,
+    val studentName: String,
+    val cardText: String,
+    val barcodeBase64: String,
+    val qrcodeBase64: String?,
+    val studentImage: String,
+    val greenPass: Boolean,
+    val __hash: String
+)
+
+data class ServerDateTimeResponse(
+    val dateTime: String
+)

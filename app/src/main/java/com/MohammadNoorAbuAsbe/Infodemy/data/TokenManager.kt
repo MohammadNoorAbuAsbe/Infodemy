@@ -56,10 +56,17 @@ class TokenManager(private val context: Context) {
         preferences[GRADES_KEY] ?: emptySet()
     }
 
-    // Clear all data
+    // Clear all credentials
     suspend fun clearAll() {
         context.dataStore.edit { preferences ->
             preferences.clear()
+        }
+    }
+
+    // Clear only token (for logout)
+    suspend fun clearToken() {
+        context.dataStore.edit { preferences ->
+            preferences.remove(TOKEN_KEY)
         }
     }
 }

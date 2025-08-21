@@ -31,6 +31,7 @@ import com.MohammadNoorAbuAsbe.Infodemy.screens.LoginScreen
 import com.MohammadNoorAbuAsbe.Infodemy.screens.MaazanScreen
 import com.MohammadNoorAbuAsbe.Infodemy.screens.MessagesScreen
 import com.MohammadNoorAbuAsbe.Infodemy.screens.ScheduleScreen
+import com.MohammadNoorAbuAsbe.Infodemy.screens.StudentCardScreen
 import com.MohammadNoorAbuAsbe.Infodemy.ui.theme.MyRuppinTheme
 import com.MohammadNoorAbuAsbe.Infodemy.workers.GradeCheckWorker
 import com.google.android.play.core.appupdate.AppUpdateManager
@@ -189,6 +190,9 @@ fun AppNavigation() {
         }
         composable("maazan") {
             MaazanScreen(navController)
+        }
+        composable("studentCard") {
+            StudentCardScreen(navController)
         }
     }
 }

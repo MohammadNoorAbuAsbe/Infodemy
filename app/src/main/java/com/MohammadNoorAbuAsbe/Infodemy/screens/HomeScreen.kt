@@ -1,5 +1,7 @@
 package com.MohammadNoorAbuAsbe.Infodemy.screens
 
+import android.content.Intent
+import android.net.Uri
 import android.os.CountDownTimer
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -16,12 +18,16 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.EventNote
+import androidx.compose.material.icons.automirrored.filled.TrendingUp
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Badge
 import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.EventNote
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material.icons.filled.School
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -76,6 +82,7 @@ import java.time.Duration
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
+import androidx.compose.foundation.layout.Row
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -232,8 +239,8 @@ fun HomeScreen(navController: NavController) {
                 )
 
                 NavigationDrawerItem(
-                    icon = { Icon(Icons.AutoMirrored.Filled.EventNote, contentDescription = null) },
-                    label = { Text("Maazan") },
+                    icon = { Icon(Icons.AutoMirrored.Filled.TrendingUp, contentDescription = null) },
+                    label = { Text("Academic Progress") },
                     selected = false,
                     onClick = {
                         scope.launch {
@@ -255,6 +262,31 @@ fun HomeScreen(navController: NavController) {
                     }
                 )
 
+                NavigationDrawerItem(
+                    icon = { Icon(Icons.Default.Badge, contentDescription = null) },
+                    label = { Text("Student Card") },
+                    selected = false,
+                    onClick = {
+                        scope.launch {
+                            drawerState.close()
+                            navController.navigate("studentCard")
+                        }
+                    }
+                )
+
+                NavigationDrawerItem(
+                    icon = { Icon(Icons.Default.School, contentDescription = null) },
+                    label = { Text("Moodle") },
+                    selected = false,
+                    onClick = {
+                        scope.launch {
+                            drawerState.close()
+                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://moodle.ruppin.ac.il/login/index.php"))
+                            context.startActivity(intent)
+                        }
+                    }
+                )
+
                 HorizontalDivider()
 
                 NavigationDrawerItem(
@@ -265,6 +297,20 @@ fun HomeScreen(navController: NavController) {
                         scope.launch {
                             drawerState.close()
                             navController.navigate("credits")
+                        }
+                    }
+                )
+
+                HorizontalDivider()
+
+                NavigationDrawerItem(
+                    icon = { Icon(Icons.Default.Logout, contentDescription = null) },
+                    label = { Text("Logout") },
+                    selected = false,
+                    onClick = {
+                        scope.launch {
+                            drawerState.close()
+                            viewModel.logout()
                         }
                     }
                 )
@@ -290,18 +336,33 @@ fun HomeScreen(navController: NavController) {
                     actions = {
                         Box {
                             val usernameWidth = remember { mutableStateOf(0) }
-                            Text(
-                                text = userName ?: "Loading...",
-                                fontSize = 18.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.primary,
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
                                 modifier = Modifier
-                                    .padding(end = 16.dp)
                                     .clickable { isDropdownExpanded = true }
+                                    .padding(horizontal = 8.dp, vertical = 4.dp)
+                                    .background(
+                                        color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f),
+                                        shape = RoundedCornerShape(16.dp)
+                                    )
+                                    .padding(horizontal = 12.dp, vertical = 6.dp)
                                     .onGloballyPositioned { coordinates ->
                                         usernameWidth.value = coordinates.size.width
                                     }
-                            )
+                            ) {
+                                Text(
+                                    text = userName ?: "Loading...",
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                                Icon(
+                                    imageVector = Icons.Default.ArrowDropDown,
+                                    contentDescription = "User menu",
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.size(16.dp)
+                                )
+                            }
                             DropdownMenu(
                                 expanded = isDropdownExpanded,
                                 onDismissRequest = { isDropdownExpanded = false },
@@ -344,15 +405,6 @@ fun HomeScreen(navController: NavController) {
                                     },
                                     onClick = {},
                                     enabled = false
-                                )
-                                HorizontalDivider()
-                                DropdownMenuItem(
-                                    text = { Text("Logout", color = MaterialTheme.colorScheme.primary) },
-                                    onClick = {
-                                        isDropdownExpanded = false
-                                        viewModel.logout()
-                                    },
-                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                                 )
                             }
                         }
