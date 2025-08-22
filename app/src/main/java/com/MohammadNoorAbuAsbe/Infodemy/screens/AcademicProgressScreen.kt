@@ -29,8 +29,8 @@ import androidx.navigation.NavController
 import com.MohammadNoorAbuAsbe.Infodemy.data.TokenManager
 import com.MohammadNoorAbuAsbe.Infodemy.data.models.*
 import com.MohammadNoorAbuAsbe.Infodemy.data.repository.MaazanRepository
-import com.MohammadNoorAbuAsbe.Infodemy.viewmodels.MaazanViewModel
-import com.MohammadNoorAbuAsbe.Infodemy.viewmodels.MaazanViewModelFactory
+import com.MohammadNoorAbuAsbe.Infodemy.viewmodels.AcademicProgressViewModel
+import com.MohammadNoorAbuAsbe.Infodemy.viewmodels.AcademicProgressViewModelFactory
 import okhttp3.OkHttpClient
 import java.util.concurrent.TimeUnit
 
@@ -77,8 +77,8 @@ fun MaazanScreen(navController: NavController) {
             .build()
     }
     val repository = remember { MaazanRepository(client) }
-    val viewModel: MaazanViewModel = viewModel(
-        factory = MaazanViewModelFactory(repository, tokenManager)
+    val viewModel: AcademicProgressViewModel = viewModel(
+        factory = AcademicProgressViewModelFactory(repository, tokenManager)
     )
     val maazanData by viewModel.maazanData.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()

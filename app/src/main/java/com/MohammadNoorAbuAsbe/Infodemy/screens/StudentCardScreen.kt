@@ -368,7 +368,7 @@ private fun InstituteLogo(logoBytes: ByteArray?, isLoading: Boolean) {
 
     Box(
         modifier = Modifier
-            .height(60.dp)
+            .height(100.dp)
             .fillMaxWidth(),
         contentAlignment = Alignment.Center
     ) {
@@ -384,7 +384,7 @@ private fun InstituteLogo(logoBytes: ByteArray?, isLoading: Boolean) {
                     bitmap = bitmap!!.asImageBitmap(),
                     contentDescription = "Institute Logo",
                     modifier = Modifier
-                        .height(60.dp)
+                        .height(100.dp)
                         .fillMaxWidth(),
                     contentScale = ContentScale.Fit
                 )

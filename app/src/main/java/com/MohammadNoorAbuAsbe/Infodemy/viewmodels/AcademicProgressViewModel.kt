@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.io.IOException
 
-class MaazanViewModel(
+class AcademicProgressViewModel(
     private val repository: MaazanRepository,
     private val tokenManager: TokenManager
 ) : ViewModel() {

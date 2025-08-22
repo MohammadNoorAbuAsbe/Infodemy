@@ -5,14 +5,14 @@ import androidx.lifecycle.ViewModelProvider
 import com.MohammadNoorAbuAsbe.Infodemy.data.TokenManager
 import com.MohammadNoorAbuAsbe.Infodemy.data.repository.MaazanRepository
 
-class MaazanViewModelFactory(
+class AcademicProgressViewModelFactory(
     private val repository: MaazanRepository,
     private val tokenManager: TokenManager
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(MaazanViewModel::class.java)) {
+        if (modelClass.isAssignableFrom(AcademicProgressViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return MaazanViewModel(repository, tokenManager) as T
+            return AcademicProgressViewModel(repository, tokenManager) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }
