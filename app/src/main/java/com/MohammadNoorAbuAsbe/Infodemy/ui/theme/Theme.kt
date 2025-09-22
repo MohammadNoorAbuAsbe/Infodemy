@@ -8,28 +8,65 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
+    primary = Primary,
+    onPrimary = BgDark,
+    primaryContainer = Primary.copy(alpha = 0.3f),
+    onPrimaryContainer = TextColor,
+    secondary = Secondary,
+    onSecondary = BgDark,
+    secondaryContainer = Secondary.copy(alpha = 0.3f),
+    onSecondaryContainer = TextColor,
+    tertiary = Info,
+    onTertiary = BgDark,
+    background = Bg,
+    onBackground = TextColor,
+    surface = BgLight,
+    onSurface = TextColor,
+    surfaceVariant = BgLight,
+    onSurfaceVariant = TextMuted,
+    surfaceTint = Primary,
+    inverseSurface = TextColor,
+    inverseOnSurface = Bg,
+    error = Danger,
+    onError = TextColor,
+    errorContainer = Danger.copy(alpha = 0.3f),
+    onErrorContainer = TextColor,
+    outline = Border,
+    outlineVariant = BorderMuted,
+    scrim = BgDark.copy(alpha = 0.8f)
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
-
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
-    onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
+    primary = PrimaryLight,
+    onPrimary = BgLightTheme,
+    primaryContainer = PrimaryLight.copy(alpha = 0.3f),
+    onPrimaryContainer = TextDarkTheme,
+    secondary = SecondaryLight,
+    onSecondary = BgLightTheme,
+    secondaryContainer = SecondaryLight.copy(alpha = 0.3f),
+    onSecondaryContainer = TextDarkTheme,
+    tertiary = Info,
+    onTertiary = BgLightTheme,
+    background = BgMainLight,
+    onBackground = TextDarkTheme,
+    surface = BgLightTheme,
+    onSurface = TextDarkTheme,
+    surfaceVariant = BgDarkLight,
+    onSurfaceVariant = TextMutedLight,
+    surfaceTint = PrimaryLight,
+    inverseSurface = TextDarkTheme,
+    inverseOnSurface = BgMainLight,
+    error = Danger,
+    onError = BgLightTheme,
+    errorContainer = Danger.copy(alpha = 0.3f),
+    onErrorContainer = TextDarkTheme,
+    outline = BorderLight,
+    outlineVariant = BorderMutedLight,
+    scrim = TextDarkTheme.copy(alpha = 0.8f)
 )
 
 @Composable

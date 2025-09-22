@@ -147,7 +147,7 @@ class MainActivity : ComponentActivity() {
         )
 
         setContent {
-            MyRuppinTheme {
+            MyRuppinTheme(darkTheme = true, dynamicColor = false) {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background

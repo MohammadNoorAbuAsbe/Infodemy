@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import com.MohammadNoorAbuAsbe.Infodemy.data.models.Course
 import com.MohammadNoorAbuAsbe.Infodemy.data.models.Detail
 import com.MohammadNoorAbuAsbe.Infodemy.data.models.SubDetail
+import com.MohammadNoorAbuAsbe.Infodemy.ui.theme.*
 
 @Composable
 fun CourseCard(course: Course) {
@@ -27,10 +28,8 @@ fun CourseCard(course: Course) {
             .fillMaxWidth()
             .padding(vertical = 8.dp, horizontal = 16.dp),
         shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(2.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainerLow
-        )
+        elevation = CardDefaults.cardElevation(4.dp),
+        colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surface)
     ) {
         Column(modifier = Modifier
             .clickable { expanded = !expanded }
@@ -107,14 +106,14 @@ fun CourseCard(course: Course) {
                     Box(
                         modifier = Modifier
                             .clip(RoundedCornerShape(8.dp))
-                            .background(MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.3f))
+                            .background(MaterialTheme.colorScheme.primaryContainer)
                             .padding(horizontal = 16.dp, vertical = 8.dp)
                     ) {
                         Text(
                             text = course.courseWeight,
                             style = MaterialTheme.typography.bodyMedium,
                             fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSecondaryContainer
+                            color = MaterialTheme.colorScheme.onPrimaryContainer
                         )
                     }
 
@@ -160,14 +159,14 @@ fun DetailCard(detail: Detail) {
                 Box(
                     modifier = Modifier
                         .clip(RoundedCornerShape(6.dp))
-                        .background(MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.2f))
+                        .background(MaterialTheme.colorScheme.primaryContainer)
                         .padding(horizontal = 8.dp, vertical = 4.dp)
                 ) {
                     Text(
                         text = finalGradeText,
                         style = MaterialTheme.typography.labelMedium,
                         fontWeight = FontWeight.Medium,
-                        color = MaterialTheme.colorScheme.onTertiaryContainer
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
                     )
                 }
 
@@ -190,7 +189,7 @@ fun DetailCard(detail: Detail) {
                     .fillMaxWidth()
                     .padding(start = 8.dp, top = 8.dp, bottom = 8.dp)
                     .clip(RoundedCornerShape(12.dp))
-                    .background(MaterialTheme.colorScheme.surfaceContainerHigh)
+                    .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.1f))
                     .padding(12.dp)
             ) {
                 detail.subDetails.forEach { subDetail ->
@@ -239,14 +238,14 @@ fun SubDetailCard(subDetail: SubDetail) {
             Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(6.dp))
-                    .background(MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.3f))
+                    .background(MaterialTheme.colorScheme.primaryContainer)
                     .padding(horizontal = 8.dp, vertical = 4.dp)
             ) {
                 Text(
                     text = "Grade: $subGradeText",
                     style = MaterialTheme.typography.labelSmall,
                     fontWeight = FontWeight.Medium,
-                    color = MaterialTheme.colorScheme.onTertiaryContainer
+                    color = MaterialTheme.colorScheme.onPrimaryContainer
                 )
             }
         }

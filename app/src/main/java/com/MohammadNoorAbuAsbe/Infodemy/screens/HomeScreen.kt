@@ -83,6 +83,7 @@ import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 import androidx.compose.foundation.layout.Row
+import androidx.compose.ui.graphics.Brush
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -281,7 +282,7 @@ fun HomeScreen(navController: NavController) {
                     onClick = {
                         scope.launch {
                             drawerState.close()
-                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://moodle.ruppin.ac.il/login/index.php"))
+                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://moodle2025.ruppin.ac.il/login/index.php"))
                             context.startActivity(intent)
                         }
                     }
@@ -415,9 +416,18 @@ fun HomeScreen(navController: NavController) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(innerPadding),
+                    .padding(innerPadding)
+                    .background(
+                        brush = Brush.verticalGradient(
+                            colors = listOf(
+                                MaterialTheme.colorScheme.background,
+                                MaterialTheme.colorScheme.surface,
+                                MaterialTheme.colorScheme.surfaceVariant
+                            )
+                        )
+                    ),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.SpaceBetween
+                verticalArrangement = Arrangement.SpaceBetween,
             ) {
 
                 CurrentEventCard(
