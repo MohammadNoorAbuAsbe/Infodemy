@@ -27,10 +27,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.MohammadNoorAbuAsbe.Infodemy.data.models.DaySchedule
+import com.MohammadNoorAbuAsbe.Infodemy.ui.theme.Danger
 
 @Composable
 fun DayScheduleList(
@@ -125,8 +127,12 @@ fun DayScheduleList(
                         shape = RoundedCornerShape(12.dp),
                         elevation = CardDefaults.cardElevation(4.dp),
                         colors = CardDefaults.cardColors(
-                            containerColor = if (isOverlapping) MaterialTheme.colorScheme.errorContainer
-                            else MaterialTheme.colorScheme.surface
+                            containerColor = if (isOverlapping) {
+                                Danger.copy(alpha = 0.40f)
+                                    .compositeOver(MaterialTheme.colorScheme.surface)
+                            } else {
+                                MaterialTheme.colorScheme.surface
+                            }
                         )
                     ) {
                         Column(
